@@ -1,0 +1,252 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/propostas"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Proposta</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  @if (loading()) {
+    <div class="center"><ion-spinner></ion-spinner></div>
+  } @else if (error() && !proposta()) {
+    <ion-text color="danger"><p>{{ error() }}</p></ion-text>
+  } @else if (proposta(); as p) {
+    <ion-card>
+      <ion-card-header>
+        <ion-card-subtitle>#{{ p.numero }} • {{ p.tipo }}</ion-card-subtitle>
+        <ion-card-title>{{ p.titularOuEmpresa }}</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-chip [color]="STATUS_COLOR[p.status]">{{ STATUS_LABEL[p.status] }}</ion-chip>
+        <ion-list lines="none" class="meta">
+          <ion-item>
+            <ion-label>
+              <p>Plano</p>
+              <h3>{{ p.planoNome }}</h3>
+            </ion-label>
+          </ion-item>
+          <ion-item>
+            <ion-label>
+              <p>Valor mensal</p>
+              <h3>{{ p.valorTotalCents / 100 | currency:'BRL':'symbol':'1.2-2' }}</h3>
+            </ion-label>
+          </ion-item>
+          <ion-item>
+            <ion-label>
+              <p>Criada em</p>
+              <h3>{{ p.criadaEm | date:'short' }}</h3>
+            </ion-label>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+
+    @if (notice()) {
+      <ion-text color="success"><p class="msg">{{ notice() }}</p></ion-text>
+    }
+    @if (error()) {
+      <ion-text color="danger"><p class="msg">{{ error() }}</p></ion-text>
+    }
+
+    @if (empresaPayload(); as e) {
+      <ion-card>
+        <ion-card-header><ion-card-title>Empresa</ion-card-title></ion-card-header>
+        <ion-card-content>
+          <p><strong>{{ e.razaoSocial }}</strong></p>
+          <p>CNPJ: {{ e.cnpj }}</p>
+          <p>{{ e.logradouro }}, {{ e.numero }} — {{ e.cidade }}/{{ e.uf }}</p>
+        </ion-card-content>
+      </ion-card>
+    }
+
+    @if (titularesPayload().length > 0) {
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>{{ p.tipo === 'PME' ? 'Titulares' : 'Titular' }}</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          @for (t of titularesPayload(); track t.id) {
+            <div class="titular-item">
+              <strong>{{ t.nome }}</strong> ({{ t.cpf }})<br/>
+              <ion-note>{{ t.email }} • {{ t.telefone }}</ion-note>
+              @if (t.dependentes?.length > 0) {
+                <div class="deps">
+                  <strong>Dependentes:</strong>
+                  @for (d of t.dependentes; track d.id) {
+                    <p class="dep">— {{ d.nome }} ({{ d.parentesco }})</p>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </ion-card-content>
+      </ion-card>
+    }
+
+    @if (documentosPayload().length > 0) {
+      <ion-card>
+        <ion-card-header><ion-card-title>Documentos anexados</ion-card-title></ion-card-header>
+        <ion-card-content>
+          @for (d of documentosPayload(); track d.id) {
+            <div class="doc-item">
+              <ion-item button (click)="verDocumento(d.id)" lines="none">
+                <ion-icon name="document-attach" slot="start" color="primary"></ion-icon>
+                <ion-label>
+                  <h3>{{ d.tipo }}</h3>
+                  <p>{{ d.nomeArquivo }} ({{ (d.tamanhoBytes / 1024) | number:'1.0-0' }} KB)</p>
+                </ion-label>
+                <ion-icon name="eye-outline" slot="end"></ion-icon>
+              </ion-item>
+              @if (d.dadosExtraidos; as ocr) {
+                <div class="ocr-box">
+                  <div class="ocr-header">
+                    📋 Extraído automaticamente (confiança {{ ocr.confianca }}%)
+                  </div>
+                  <ul>
+                    @if (ocr.nome) { <li><strong>Nome:</strong> {{ ocr.nome }}</li> }
+                    @if (ocr.cpf) { <li><strong>CPF:</strong> {{ ocr.cpf }}</li> }
+                    @if (ocr.cnpj) { <li><strong>CNPJ:</strong> {{ ocr.cnpj }}</li> }
+                    @if (ocr.dataNascimento) { <li><strong>Nascimento:</strong> {{ ocr.dataNascimento }}</li> }
+                    @if (ocr.rg) { <li><strong>RG:</strong> {{ ocr.rg }}</li> }
+                  </ul>
+                </div>
+              }
+            </div>
+          }
+        </ion-card-content>
+      </ion-card>
+    }
+
+    @if (assinatura(); as ass) {
+      <ion-card>
+        <ion-card-header>
+          <ion-card-subtitle>Assinatura</ion-card-subtitle>
+          <ion-card-title>Contrato assinado</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <p>Hash: <code class="hash">{{ ass.hash.slice(0, 16) }}...</code></p>
+          <ion-button expand="block" fill="outline" (click)="verPdfAssinado()">
+            <ion-icon name="document-text" slot="start"></ion-icon>
+            Ver PDF assinado
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+    }
+
+    @if (pagamentoAtual(); as pay) {
+      <ion-card>
+        <ion-card-header>
+          <ion-card-subtitle>Pagamento ({{ pay.metodo }})</ion-card-subtitle>
+          <ion-card-title>{{ pay.valorCents / 100 | currency:'BRL':'symbol':'1.2-2' }}</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          @if (pay.metodo === 'PIX') {
+            @if (qrDataUrl(); as qr) {
+              <div class="qr-wrap">
+                <img [src]="qr" alt="QR PIX" />
+              </div>
+            }
+            <p><strong>PIX Copia e Cola:</strong></p>
+            <pre class="pix-code">{{ pay.copiaColaMock }}</pre>
+            <ion-button expand="block" fill="outline" (click)="copiar(pay.copiaColaMock || '')">
+              <ion-icon name="copy-outline" slot="start"></ion-icon>
+              Copiar código PIX
+            </ion-button>
+            @if (p.status === 'AGUARDANDO_PAGAMENTO') {
+              <div class="aguardando">
+                <ion-spinner name="dots"></ion-spinner>
+                <span>Aguardando confirmação automática...</span>
+              </div>
+            }
+          } @else {
+            <p><strong>Linha digitável:</strong></p>
+            <pre class="pix-code">{{ pay.linhaDigitavel }}</pre>
+          }
+          <ion-note>Status: {{ pay.status }}</ion-note>
+        </ion-card-content>
+      </ion-card>
+    }
+
+    <ion-card>
+      <ion-card-header><ion-card-title>Próximos passos</ion-card-title></ion-card-header>
+      <ion-card-content>
+        @switch (p.status) {
+          @case ('SIMULADA') {
+            <p>Tire uma foto do documento para avançar.</p>
+            <ion-item>
+              <ion-label position="stacked">Tipo de documento</ion-label>
+              <ion-select [value]="tipoDocSelecionado()" interface="popover"
+                          (ionChange)="onTipoDocChange($any($event).detail.value)">
+                @for (t of TIPOS_DOC; track t) {
+                  <ion-select-option [value]="t">{{ t }}</ion-select-option>
+                }
+              </ion-select>
+            </ion-item>
+            <ion-button expand="block" (click)="anexarDocComCamera()" [disabled]="uploading()">
+              @if (uploading()) {
+                <ion-spinner slot="start"></ion-spinner>
+              } @else {
+                <ion-icon name="document-attach" slot="start"></ion-icon>
+              }
+              Tirar foto / escolher imagem
+            </ion-button>
+          }
+          @case ('AGUARDANDO_DOCS') {
+            <p>Você pode anexar mais documentos ou concluir.</p>
+            <ion-item>
+              <ion-label position="stacked">Tipo do próximo</ion-label>
+              <ion-select [value]="tipoDocSelecionado()" interface="popover"
+                          (ionChange)="onTipoDocChange($any($event).detail.value)">
+                @for (t of TIPOS_DOC; track t) {
+                  <ion-select-option [value]="t">{{ t }}</ion-select-option>
+                }
+              </ion-select>
+            </ion-item>
+            <ion-button expand="block" fill="outline" (click)="anexarDocComCamera()" [disabled]="uploading()">
+              <ion-icon name="document-attach" slot="start"></ion-icon>
+              Anexar mais
+            </ion-button>
+            <ion-button expand="block" (click)="concluirDocs()" [disabled]="busy()">
+              <ion-icon name="checkmark-circle" slot="start"></ion-icon>
+              Concluir documentos
+            </ion-button>
+          }
+          @case ('AGUARDANDO_ASSINATURA') {
+            <p>Assine na tela para gerar o PDF.</p>
+            <ion-button expand="block" (click)="assinarComCanvas()" [disabled]="busy()">
+              <ion-icon name="pencil" slot="start"></ion-icon>
+              Abrir tela de assinatura
+            </ion-button>
+          }
+          @case ('AGUARDANDO_PAGAMENTO') {
+            @if (!pagamentoAtual()) {
+              <p>Gere um pagamento para o cliente:</p>
+              <ion-button expand="block" (click)="gerarPagamento('PIX')" [disabled]="busy()">
+                <ion-icon name="qr-code" slot="start"></ion-icon>
+                Gerar PIX
+              </ion-button>
+              <ion-button expand="block" fill="outline" (click)="gerarPagamento('BOLETO')" [disabled]="busy()">
+                Gerar boleto
+              </ion-button>
+            } @else {
+              <p><ion-icon name="cloud-done-outline"></ion-icon> O sistema confirma o pagamento automaticamente após 30s do envio (simulador).</p>
+            }
+          }
+          @case ('TRANSMITIDA') { <p>✅ Proposta transmitida. Aguarde a análise da operadora.</p> }
+          @case ('APROVADA') { <p>✅ Proposta aprovada.</p> }
+          @case ('RECUSADA') { <p>❌ Proposta recusada.</p> }
+          @case ('CANCELADA') { <p>Proposta cancelada.</p> }
+        }
+
+        @if (p.status !== 'TRANSMITIDA' && p.status !== 'APROVADA' && p.status !== 'RECUSADA' && p.status !== 'CANCELADA') {
+          <ion-button expand="block" fill="clear" color="danger" (click)="cancelar()" [disabled]="busy()">
+            <ion-icon name="trash" slot="start"></ion-icon>
+            Cancelar proposta
+          </ion-button>
+        }
+      </ion-card-content>
+    </ion-card>
+  }
+</ion-content>

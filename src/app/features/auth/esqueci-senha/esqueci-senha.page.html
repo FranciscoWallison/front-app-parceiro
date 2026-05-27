@@ -1,0 +1,69 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/login"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Esqueci minha senha</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-card>
+    @if (stage() === 'cpf') {
+      <ion-card-header>
+        <ion-card-subtitle>Passo 1</ion-card-subtitle>
+        <ion-card-title>Informe seu CPF</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-list>
+          <ion-item>
+            <ion-label position="stacked">CPF</ion-label>
+            <ion-input name="cpf" [(ngModel)]="cpf" inputmode="numeric" placeholder="00000000000"></ion-input>
+          </ion-item>
+        </ion-list>
+        @if (error()) {
+          <ion-text color="danger"><p>{{ error() }}</p></ion-text>
+        }
+        <ion-button expand="block" (click)="pedirToken()" [disabled]="busy()" class="ion-margin-top">
+          @if (busy()) {
+            <ion-spinner slot="start"></ion-spinner>
+          } @else {
+            <ion-icon name="mail-outline" slot="start"></ion-icon>
+          }
+          Gerar token
+        </ion-button>
+      </ion-card-content>
+    } @else {
+      <ion-card-header>
+        <ion-card-subtitle>Passo 2</ion-card-subtitle>
+        <ion-card-title>Token + nova senha</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        @if (notice()) {
+          <ion-text color="medium"><p>{{ notice() }}</p></ion-text>
+        }
+        <ion-list>
+          <ion-item>
+            <ion-label position="stacked">Token</ion-label>
+            <ion-input name="token" [(ngModel)]="token" placeholder="cole o token aqui"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">Nova senha</ion-label>
+            <ion-input name="novaSenha" type="password" [(ngModel)]="novaSenha" placeholder="mín. 6 chars"></ion-input>
+          </ion-item>
+        </ion-list>
+        @if (error()) {
+          <ion-text color="danger"><p>{{ error() }}</p></ion-text>
+        }
+        <ion-button expand="block" (click)="resetar()" [disabled]="busy()" class="ion-margin-top">
+          @if (busy()) {
+            <ion-spinner slot="start"></ion-spinner>
+          } @else {
+            <ion-icon name="key-outline" slot="start"></ion-icon>
+          }
+          Trocar senha
+        </ion-button>
+      </ion-card-content>
+    }
+  </ion-card>
+</ion-content>

@@ -1,0 +1,198 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/propostas"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Nova proposta PME</ion-title>
+  </ion-toolbar>
+  <ion-toolbar>
+    <ion-progress-bar [value]="progress()"></ion-progress-bar>
+    <div class="step-label">Passo {{ step() }} de {{ totalSteps }}</div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  @if (errorMsg()) {
+    <ion-text color="danger"><p>{{ errorMsg() }}</p></ion-text>
+  }
+
+  <!-- STEP 1: Empresa -->
+  @if (step() === 1) {
+    <ion-card>
+      <ion-card-header>
+        <ion-card-subtitle>Passo 1</ion-card-subtitle>
+        <ion-card-title>Dados da empresa</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-list>
+          <ion-item>
+            <ion-label position="stacked">CNPJ*</ion-label>
+            <ion-input name="cnpj" [(ngModel)]="empresa.cnpj" inputmode="numeric"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">Razão social*</ion-label>
+            <ion-input name="razaoSocial" [(ngModel)]="empresa.razaoSocial"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">Nome fantasia*</ion-label>
+            <ion-input name="nomeFantasia" [(ngModel)]="empresa.nomeFantasia"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">E-mail de contato*</ion-label>
+            <ion-input name="emailContato" type="email" [(ngModel)]="empresa.emailContato"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">Telefone*</ion-label>
+            <ion-input name="telefone" [(ngModel)]="empresa.telefone"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">CEP*</ion-label>
+            <ion-input name="cep" [(ngModel)]="empresa.cep" inputmode="numeric"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">Logradouro*</ion-label>
+            <ion-input name="logradouro" [(ngModel)]="empresa.logradouro"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">Número*</ion-label>
+            <ion-input name="numero" [(ngModel)]="empresa.numero"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">Bairro*</ion-label>
+            <ion-input name="bairro" [(ngModel)]="empresa.bairro"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">Cidade*</ion-label>
+            <ion-input name="cidade" [(ngModel)]="empresa.cidade"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">UF*</ion-label>
+            <ion-input name="uf" [(ngModel)]="empresa.uf" maxlength="2"></ion-input>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+  }
+
+  <!-- STEP 2: Titulares -->
+  @if (step() === 2) {
+    <ion-card>
+      <ion-card-header>
+        <ion-card-subtitle>Passo 2</ion-card-subtitle>
+        <ion-card-title>Funcionários titulares</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        @for (t of titulares(); track t.uid) {
+          <div class="dep-card">
+            <ion-list>
+              <ion-item>
+                <ion-label position="stacked">CPF*</ion-label>
+                <ion-input name="t-cpf-{{t.uid}}" [(ngModel)]="t.cpf" inputmode="numeric"></ion-input>
+              </ion-item>
+              <ion-item>
+                <ion-label position="stacked">Nome*</ion-label>
+                <ion-input name="t-nome-{{t.uid}}" [(ngModel)]="t.nome"></ion-input>
+              </ion-item>
+              <ion-item>
+                <ion-label position="stacked">Data nasc.*</ion-label>
+                <ion-input name="t-dn-{{t.uid}}" type="date" [(ngModel)]="t.dataNascimento"></ion-input>
+              </ion-item>
+              <ion-item>
+                <ion-label position="stacked">E-mail*</ion-label>
+                <ion-input name="t-em-{{t.uid}}" type="email" [(ngModel)]="t.email"></ion-input>
+              </ion-item>
+              <ion-item>
+                <ion-label position="stacked">Telefone*</ion-label>
+                <ion-input name="t-tel-{{t.uid}}" [(ngModel)]="t.telefone"></ion-input>
+              </ion-item>
+            </ion-list>
+            @if (titulares().length > 1) {
+              <ion-button expand="block" fill="clear" color="danger" (click)="removeTitular(t.uid)">
+                <ion-icon name="trash" slot="start"></ion-icon>
+                Remover titular
+              </ion-button>
+            }
+          </div>
+        }
+        <ion-button expand="block" fill="outline" (click)="addTitular()">
+          <ion-icon name="add" slot="start"></ion-icon>
+          Adicionar titular
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+  }
+
+  <!-- STEP 3: Plano -->
+  @if (step() === 3) {
+    <ion-card>
+      <ion-card-header>
+        <ion-card-subtitle>Passo 3</ion-card-subtitle>
+        <ion-card-title>Escolha o plano</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        @if (planos().length === 0) {
+          <ion-spinner></ion-spinner>
+        } @else {
+          <ion-radio-group [value]="planoSelecionado()?.id" (ionChange)="selecionarPlano($any($event).detail.value)">
+            @for (p of planos(); track p.id) {
+              <ion-item>
+                <ion-radio slot="start" [value]="p.id"></ion-radio>
+                <ion-label class="plano-label">
+                  <h2>{{ p.nome }}</h2>
+                  <p>{{ p.descricao }}</p>
+                  <ion-text color="primary">
+                    <strong>{{ p.valorTitularCents / 100 | currency:'BRL':'symbol':'1.2-2' }}</strong>/mês por titular
+                  </ion-text>
+                </ion-label>
+              </ion-item>
+            }
+          </ion-radio-group>
+          @if (planoSelecionado()) {
+            <ion-text color="primary" class="total-preview">
+              <h3>Total mensal: {{ valorTotalCents() / 100 | currency:'BRL':'symbol':'1.2-2' }}</h3>
+              <small>{{ titulares().length }} titular(es)</small>
+            </ion-text>
+          }
+        }
+      </ion-card-content>
+    </ion-card>
+  }
+
+  <!-- STEP 4: Resumo -->
+  @if (step() === 4) {
+    <ion-card>
+      <ion-card-header>
+        <ion-card-subtitle>Passo 4</ion-card-subtitle>
+        <ion-card-title>Resumo</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <p><strong>Empresa:</strong> {{ empresa.razaoSocial }} ({{ empresa.cnpj }})</p>
+        <p><strong>Titulares:</strong> {{ titulares().length }}</p>
+        <p><strong>Plano:</strong> {{ planoSelecionado()?.nome }}</p>
+        <p><strong>Total mensal:</strong> {{ valorTotalCents() / 100 | currency:'BRL':'symbol':'1.2-2' }}</p>
+      </ion-card-content>
+    </ion-card>
+  }
+
+  <div class="nav-buttons">
+    <ion-button fill="outline" [disabled]="step() === 1 || loading()" (click)="anterior()">
+      <ion-icon name="arrow-back" slot="start"></ion-icon>
+      Voltar
+    </ion-button>
+    @if (step() < totalSteps) {
+      <ion-button (click)="proximo()" [disabled]="loading()">
+        Próximo
+        <ion-icon name="arrow-forward" slot="end"></ion-icon>
+      </ion-button>
+    } @else {
+      <ion-button color="success" (click)="submeter()" [disabled]="loading()">
+        @if (loading()) {
+          <ion-spinner name="crescent" slot="start"></ion-spinner>
+        } @else {
+          <ion-icon name="checkmark" slot="start"></ion-icon>
+        }
+        Criar proposta
+      </ion-button>
+    }
+  </div>
+</ion-content>

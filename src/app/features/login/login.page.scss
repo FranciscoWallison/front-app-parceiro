@@ -1,0 +1,23 @@
+.error-text {
+  margin: 12px 0 0;
+  font-size: 0.9em;
+}
+
+.hint {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 0.85em;
+
+  code {
+    background: var(--ion-color-step-100, #f0f0f0);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+  }
+}
+
+ion-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

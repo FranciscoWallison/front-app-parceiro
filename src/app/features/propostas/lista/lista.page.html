@@ -1,0 +1,69 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Propostas</ion-title>
+  </ion-toolbar>
+  <ion-toolbar>
+    <ion-segment [value]="filtroTipo()" (ionChange)="onFiltroChange($event.detail.value)">
+      <ion-segment-button value="TODOS"><ion-label>Todos</ion-label></ion-segment-button>
+      <ion-segment-button value="PF"><ion-label>PF</ion-label></ion-segment-button>
+      <ion-segment-button value="PME"><ion-label>PME</ion-label></ion-segment-button>
+    </ion-segment>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  @if (loading()) {
+    <div class="center"><ion-spinner></ion-spinner></div>
+  } @else if (error()) {
+    <ion-text color="danger"><p>{{ error() }}</p></ion-text>
+  } @else if (propostas().length === 0) {
+    <ion-card>
+      <ion-card-content>
+        <p>Nenhuma proposta ainda. Toque no botão <strong>+</strong> abaixo para criar a primeira.</p>
+      </ion-card-content>
+    </ion-card>
+  } @else {
+    <ion-list lines="full">
+      @for (p of propostas(); track p.id) {
+        <ion-item button (click)="abrir(p)">
+          <ion-icon
+            [name]="p.tipo === 'PF' ? 'person' : 'briefcase'"
+            slot="start"
+            color="primary"
+          ></ion-icon>
+          <ion-label>
+            <h2>#{{ p.numero }} — {{ p.titularOuEmpresa }}</h2>
+            <p>{{ p.planoNome }} — {{ p.valorTotalCents / 100 | currency:'BRL':'symbol':'1.2-2' }}/mês</p>
+            <ion-text color="medium">
+              <small>
+                <ion-icon name="time"></ion-icon>
+                atualizada em {{ p.atualizadaEm | date:'short' }}
+              </small>
+            </ion-text>
+          </ion-label>
+          <ion-chip slot="end" [color]="STATUS_COLOR[p.status]">
+            {{ STATUS_LABEL[p.status] }}
+          </ion-chip>
+        </ion-item>
+      }
+    </ion-list>
+  }
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button routerLink="/propostas/nova-pf" color="primary">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
+  <div class="acoes-rapidas ion-margin-top">
+    <ion-button expand="block" fill="outline" routerLink="/propostas/nova-pf">
+      Nova proposta PF
+    </ion-button>
+    <ion-button expand="block" fill="outline" routerLink="/propostas/nova-pme">
+      Nova proposta PME
+    </ion-button>
+  </div>
+</ion-content>

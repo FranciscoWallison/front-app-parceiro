@@ -1,0 +1,266 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/propostas"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Nova proposta PF</ion-title>
+  </ion-toolbar>
+  <ion-toolbar>
+    <ion-progress-bar [value]="progress()"></ion-progress-bar>
+    <div class="step-label">Passo {{ step() }} de {{ totalSteps }}</div>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  @if (errorMsg()) {
+    <ion-text color="danger"><p>{{ errorMsg() }}</p></ion-text>
+  }
+
+  <!-- STEP 1: Titular -->
+  @if (step() === 1) {
+    <ion-card>
+      <ion-card-header>
+        <ion-card-subtitle>Passo 1</ion-card-subtitle>
+        <ion-card-title>Dados do titular</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-list>
+          <ion-item>
+            <ion-label position="stacked">CPF*</ion-label>
+            <ion-input name="cpf" appCpfMask [(ngModel)]="titular.cpf" inputmode="numeric" placeholder="000.000.000-00"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">Nome completo*</ion-label>
+            <ion-input name="nome" [(ngModel)]="titular.nome"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">Data de nascimento*</ion-label>
+            <ion-input name="dataNascimento" type="date" [(ngModel)]="titular.dataNascimento"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">E-mail*</ion-label>
+            <ion-input name="email" type="email" [(ngModel)]="titular.email"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">Telefone*</ion-label>
+            <ion-input name="telefone" appTelefoneMask [(ngModel)]="titular.telefone" inputmode="tel" placeholder="(11) 99999-9999"></ion-input>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+  }
+
+  <!-- STEP 2: Endereço -->
+  @if (step() === 2) {
+    <ion-card>
+      <ion-card-header>
+        <ion-card-subtitle>Passo 2</ion-card-subtitle>
+        <ion-card-title>Endereço do titular</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-list>
+          <ion-item>
+            <ion-label position="stacked">CEP*</ion-label>
+            <ion-input
+              name="cep"
+              appCepMask
+              [(ngModel)]="titular.cep"
+              inputmode="numeric"
+              placeholder="00000-000"
+              (ionBlur)="buscarCep()"
+            ></ion-input>
+            @if (cepBuscando()) {
+              <ion-spinner slot="end" name="dots"></ion-spinner>
+            }
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">Logradouro*</ion-label>
+            <ion-input name="logradouro" [(ngModel)]="titular.logradouro"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">Número*</ion-label>
+            <ion-input name="numero" [(ngModel)]="titular.numero"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">Complemento</ion-label>
+            <ion-input name="complemento" [(ngModel)]="titular.complemento"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">Bairro*</ion-label>
+            <ion-input name="bairro" [(ngModel)]="titular.bairro"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">Cidade*</ion-label>
+            <ion-input name="cidade" [(ngModel)]="titular.cidade"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-label position="stacked">UF*</ion-label>
+            <ion-input name="uf" [(ngModel)]="titular.uf" maxlength="2"></ion-input>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+  }
+
+  <!-- STEP 3: Dependentes -->
+  @if (step() === 3) {
+    <ion-card>
+      <ion-card-header>
+        <ion-card-subtitle>Passo 3</ion-card-subtitle>
+        <ion-card-title>Dependentes</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        @if (dependentes().length === 0) {
+          <p>Nenhum dependente adicionado. Você pode pular este passo se o titular não tem dependentes.</p>
+        }
+        @for (d of dependentes(); track d.uid) {
+          <div class="dep-card">
+            <ion-list>
+              <ion-item>
+                <ion-label position="stacked">CPF</ion-label>
+                <ion-input name="dep-cpf-{{d.uid}}" appCpfMask [(ngModel)]="d.cpf" inputmode="numeric" placeholder="000.000.000-00"></ion-input>
+              </ion-item>
+              <ion-item>
+                <ion-label position="stacked">Nome</ion-label>
+                <ion-input name="dep-nome-{{d.uid}}" [(ngModel)]="d.nome"></ion-input>
+              </ion-item>
+              <ion-item>
+                <ion-label position="stacked">Data nasc.</ion-label>
+                <ion-input name="dep-dn-{{d.uid}}" type="date" [(ngModel)]="d.dataNascimento"></ion-input>
+              </ion-item>
+              <ion-item>
+                <ion-label position="stacked">Parentesco</ion-label>
+                <ion-select name="dep-pa-{{d.uid}}" [(ngModel)]="d.parentesco" interface="popover">
+                  <ion-select-option value="CONJUGE">Cônjuge</ion-select-option>
+                  <ion-select-option value="FILHO">Filho(a)</ion-select-option>
+                  <ion-select-option value="PAI">Pai</ion-select-option>
+                  <ion-select-option value="MAE">Mãe</ion-select-option>
+                  <ion-select-option value="OUTRO">Outro</ion-select-option>
+                </ion-select>
+              </ion-item>
+            </ion-list>
+            <ion-button expand="block" fill="clear" color="danger" (click)="removeDependente(d.uid)">
+              <ion-icon name="trash" slot="start"></ion-icon>
+              Remover dependente
+            </ion-button>
+          </div>
+        }
+        <ion-button expand="block" fill="outline" (click)="addDependente()">
+          <ion-icon name="add" slot="start"></ion-icon>
+          Adicionar dependente
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+  }
+
+  <!-- STEP 4: Plano -->
+  @if (step() === 4) {
+    <ion-card>
+      <ion-card-header>
+        <ion-card-subtitle>Passo 4</ion-card-subtitle>
+        <ion-card-title>Escolha o plano</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        @if (planos().length === 0) {
+          <ion-spinner></ion-spinner>
+        } @else {
+          <ion-radio-group [value]="planoSelecionado()?.id" (ionChange)="selecionarPlano($any($event).detail.value)">
+            @for (p of planos(); track p.id) {
+              <ion-item>
+                <ion-radio slot="start" [value]="p.id"></ion-radio>
+                <ion-label class="plano-label">
+                  <h2>{{ p.nome }}</h2>
+                  <p>{{ p.descricao }}</p>
+                  <ion-text color="primary">
+                    <strong>{{ p.valorTitularCents / 100 | currency:'BRL':'symbol':'1.2-2' }}</strong>/mês titular
+                    + {{ p.valorDependenteCents / 100 | currency:'BRL':'symbol':'1.2-2' }}/dep
+                  </ion-text>
+                </ion-label>
+              </ion-item>
+            }
+          </ion-radio-group>
+          @if (planoSelecionado()) {
+            <ion-text color="primary" class="total-preview">
+              <h3>Total mensal estimado: {{ valorTotalCents() / 100 | currency:'BRL':'symbol':'1.2-2' }}</h3>
+              <small>{{ dependentes().length }} dependente(s)</small>
+            </ion-text>
+          }
+        }
+      </ion-card-content>
+    </ion-card>
+  }
+
+  <!-- STEP 5: Declaração de saúde + resumo -->
+  @if (step() === 5) {
+    <ion-card>
+      <ion-card-header>
+        <ion-card-subtitle>Passo 5</ion-card-subtitle>
+        <ion-card-title>Declaração de saúde</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <p>Marque as opções que se aplicam ao titular:</p>
+        <ion-list>
+          <ion-item>
+            <ion-checkbox slot="start" [checked]="declaracaoSaude()['fumante']"
+              (ionChange)="toggleSaude('fumante', $event)">
+            </ion-checkbox>
+            <ion-label>Fumante</ion-label>
+          </ion-item>
+          <ion-item>
+            <ion-checkbox slot="start" [checked]="declaracaoSaude()['doencaCardiaca']"
+              (ionChange)="toggleSaude('doencaCardiaca', $event)">
+            </ion-checkbox>
+            <ion-label>Doença cardíaca</ion-label>
+          </ion-item>
+          <ion-item>
+            <ion-checkbox slot="start" [checked]="declaracaoSaude()['diabetes']"
+              (ionChange)="toggleSaude('diabetes', $event)">
+            </ion-checkbox>
+            <ion-label>Diabetes</ion-label>
+          </ion-item>
+          <ion-item>
+            <ion-checkbox slot="start" [checked]="declaracaoSaude()['hipertensao']"
+              (ionChange)="toggleSaude('hipertensao', $event)">
+            </ion-checkbox>
+            <ion-label>Hipertensão</ion-label>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Resumo</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <p><strong>Titular:</strong> {{ titular.nome }} ({{ titular.cpf }})</p>
+        <p><strong>Dependentes:</strong> {{ dependentes().length }}</p>
+        <p><strong>Plano:</strong> {{ planoSelecionado()?.nome }}</p>
+        <p><strong>Total mensal:</strong> {{ valorTotalCents() / 100 | currency:'BRL':'symbol':'1.2-2' }}</p>
+      </ion-card-content>
+    </ion-card>
+  }
+
+  <!-- Navegação -->
+  <div class="nav-buttons">
+    <ion-button fill="outline" [disabled]="step() === 1 || loading()" (click)="anterior()">
+      <ion-icon name="arrow-back" slot="start"></ion-icon>
+      Voltar
+    </ion-button>
+    @if (step() < totalSteps) {
+      <ion-button (click)="proximo()" [disabled]="loading()">
+        Próximo
+        <ion-icon name="arrow-forward" slot="end"></ion-icon>
+      </ion-button>
+    } @else {
+      <ion-button color="success" (click)="submeter()" [disabled]="loading()">
+        @if (loading()) {
+          <ion-spinner name="crescent" slot="start"></ion-spinner>
+        } @else {
+          <ion-icon name="checkmark" slot="start"></ion-icon>
+        }
+        Criar proposta
+      </ion-button>
+    }
+  </div>
+</ion-content>

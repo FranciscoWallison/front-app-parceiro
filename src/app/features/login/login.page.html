@@ -1,0 +1,88 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>App Corretor</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>
+        <ion-icon name="lock-closed" aria-hidden="true"></ion-icon>
+        Entrar
+      </ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <form (ngSubmit)="submit()" #f="ngForm">
+        <ion-item>
+          <ion-label position="stacked">CPF</ion-label>
+          <ion-input
+            name="cpf"
+            type="tel"
+            inputmode="numeric"
+            appCpfMask
+            [(ngModel)]="cpf"
+            placeholder="000.000.000-00"
+            required
+            [disabled]="loading()"
+            autocomplete="username"
+          ></ion-input>
+        </ion-item>
+
+        <ion-item>
+          <ion-label position="stacked">Senha</ion-label>
+          <ion-input
+            name="senha"
+            type="password"
+            [(ngModel)]="senha"
+            placeholder="••••••••"
+            required
+            [disabled]="loading()"
+            autocomplete="current-password"
+          ></ion-input>
+        </ion-item>
+
+        @if (errorMsg()) {
+          <ion-text color="danger">
+            <p class="error-text">{{ errorMsg() }}</p>
+          </ion-text>
+        }
+
+        <ion-button expand="block" type="submit" [disabled]="loading()" class="ion-margin-top">
+          @if (loading()) {
+            <ion-spinner name="crescent" slot="start"></ion-spinner>
+          } @else {
+            <ion-icon name="person" slot="start"></ion-icon>
+          }
+          Entrar
+        </ion-button>
+
+        @if (biometricAvailable() && hasBiometric()) {
+          <ion-button
+            expand="block"
+            fill="outline"
+            color="medium"
+            type="button"
+            (click)="loginBiometric()"
+            [disabled]="loading()"
+          >
+            <ion-icon name="finger-print" slot="start"></ion-icon>
+            Entrar com biometria
+          </ion-button>
+        }
+
+        <ion-button expand="block" fill="clear" color="medium" type="button" routerLink="/esqueci-senha">
+          Esqueci minha senha
+        </ion-button>
+      </form>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-text color="medium">
+    <p class="hint">
+      Usuários de teste:<br />
+      <code>12345678909</code> / <code>senha123</code> (ACME)<br />
+      <code>11144477735</code> / <code>senha123</code> (Beta)
+    </p>
+  </ion-text>
+</ion-content>

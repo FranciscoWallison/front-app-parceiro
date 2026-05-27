@@ -1,0 +1,25 @@
+.info-card {
+  font-size: 0.85em;
+  color: var(--ion-color-medium);
+}
+
+.msg {
+  margin: 12px 0;
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+  padding: 32px;
+}
+
+.acoes {
+  display: flex;
+  gap: 8px;
+  padding: 8px 16px 16px;
+  border-bottom: 1px solid var(--ion-color-step-100, #eee);
+}
+
+.acoes ion-button {
+  flex: 1;
+}

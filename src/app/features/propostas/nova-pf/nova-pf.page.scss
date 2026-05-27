@@ -1,0 +1,37 @@
+.step-label {
+  font-size: 0.85em;
+  text-align: center;
+  padding: 6px 0;
+  color: var(--ion-color-medium);
+}
+
+.dep-card {
+  border: 1px solid var(--ion-color-step-200, #eee);
+  border-radius: 8px;
+  padding: 8px;
+  margin-bottom: 16px;
+}
+
+.plano-label {
+  white-space: normal;
+}
+
+.total-preview {
+  display: block;
+  margin-top: 16px;
+  padding: 12px;
+  background: var(--ion-color-light, #f4f4f4);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 24px;
+  gap: 12px;
+}
+
+.nav-buttons ion-button {
+  flex: 1;
+}

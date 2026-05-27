@@ -1,0 +1,36 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Materiais promocionais</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  @if (loading()) {
+    <ion-spinner></ion-spinner>
+  } @else if (error()) {
+    <ion-text color="danger"><p>{{ error() }}</p></ion-text>
+  } @else if (materiais().length === 0) {
+    <ion-card><ion-card-content><p>Nenhum material disponível.</p></ion-card-content></ion-card>
+  } @else {
+    <ion-list lines="full">
+      @for (m of materiais(); track m.id) {
+        <ion-item>
+          <ion-icon [name]="iconePara(m.tipo)" slot="start" color="primary"></ion-icon>
+          <ion-label>
+            <h2>{{ m.titulo }}</h2>
+            <p>{{ m.descricao }}</p>
+          </ion-label>
+          <ion-button fill="clear" (click)="download(m)" slot="end">
+            <ion-icon name="download-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+        </ion-item>
+      }
+    </ion-list>
+    @if (notice()) {
+      <ion-text color="medium"><p>{{ notice() }}</p></ion-text>
+    }
+  }
+</ion-content>

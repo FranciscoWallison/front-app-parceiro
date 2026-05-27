@@ -1,0 +1,44 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Fale conosco</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Envie sua mensagem</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-list>
+        <ion-item>
+          <ion-label position="stacked">Assunto*</ion-label>
+          <ion-input name="assunto" [(ngModel)]="assunto" placeholder="Ex: Dúvida sobre proposta PME"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-label position="stacked">Mensagem*</ion-label>
+          <ion-textarea name="mensagem" [(ngModel)]="mensagem" rows="6" placeholder="Descreva sua dúvida..."></ion-textarea>
+        </ion-item>
+      </ion-list>
+
+      @if (error()) {
+        <ion-text color="danger"><p>{{ error() }}</p></ion-text>
+      }
+      @if (notice()) {
+        <ion-text color="success"><p>{{ notice() }}</p></ion-text>
+      }
+
+      <ion-button expand="block" (click)="enviar()" [disabled]="busy()" class="ion-margin-top">
+        @if (busy()) {
+          <ion-spinner slot="start"></ion-spinner>
+        } @else {
+          <ion-icon name="send" slot="start"></ion-icon>
+        }
+        Enviar
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

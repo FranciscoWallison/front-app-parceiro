@@ -1,0 +1,14 @@
+.cat {
+  font-size: 0.85em;
+  text-transform: uppercase;
+  color: var(--ion-color-medium);
+  margin-top: 24px;
+  margin-bottom: 8px;
+}
+
+.resposta {
+  padding: 16px;
+  background: var(--ion-color-light, #f7f7f7);
+  color: var(--ion-text-color);
+  line-height: 1.5;
+}

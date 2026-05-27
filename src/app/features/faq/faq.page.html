@@ -1,0 +1,30 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Perguntas frequentes</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  @if (loading()) {
+    <ion-spinner></ion-spinner>
+  } @else if (error()) {
+    <ion-text color="danger"><p>{{ error() }}</p></ion-text>
+  } @else {
+    @for (g of categorias(); track g.cat) {
+      <h3 class="cat">{{ g.cat }}</h3>
+      <ion-accordion-group>
+        @for (it of g.items; track it.id) {
+          <ion-accordion [value]="it.id">
+            <ion-item slot="header">
+              <ion-label>{{ it.pergunta }}</ion-label>
+            </ion-item>
+            <div class="resposta" slot="content">{{ it.resposta }}</div>
+          </ion-accordion>
+        }
+      </ion-accordion-group>
+    }
+  }
+</ion-content>

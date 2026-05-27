@@ -1,0 +1,51 @@
+.center {
+  display: flex;
+  justify-content: center;
+  padding: 24px;
+}
+
+.notice {
+  margin-top: 12px;
+  font-size: 0.9em;
+  color: var(--ion-color-medium);
+  text-align: center;
+}
+
+ion-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.kpis .kpi {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 4px;
+  border-radius: 12px;
+  color: white;
+  text-align: center;
+}
+
+.kpis .num {
+  font-size: 1.6em;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.kpis .label {
+  font-size: 0.75em;
+  margin-top: 4px;
+}
+
+.card-warning { background: var(--ion-color-warning, #ffc409); color: #333; }
+.card-primary { background: var(--ion-color-primary, #3880ff); }
+.card-success { background: var(--ion-color-success, #2dd36f); }
+
+.atalhos ion-button {
+  height: 56px;
+}
+
+ion-item small {
+  color: var(--ion-color-medium);
+}
