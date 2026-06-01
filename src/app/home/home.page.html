@@ -28,10 +28,18 @@
       <span class="t-meta">{{ d.total }} propostas no total</span>
     </section>
 
-    <!-- CTAs primários: novo PF / PME -->
+    <!-- CTAs primários: criar proposta -->
     <section class="section">
       <span class="t-label section-label">Criar proposta</span>
       <div class="cta-grid">
+        <a class="cta-card cta-ai" routerLink="/chat">
+          <span class="icon-wrap icon-accent"><ion-icon name="sparkles-outline" aria-hidden="true"></ion-icon></span>
+          <span class="cta-titles">
+            <span class="cta-title">Criar com IA</span>
+            <span class="cta-sub">Conversa em vez de wizard</span>
+          </span>
+          <ion-icon class="chev" name="chevron-forward-outline" aria-hidden="true"></ion-icon>
+        </a>
         <a class="cta-card" routerLink="/propostas/nova-pf">
           <span class="icon-wrap"><ion-icon name="person-add-outline" aria-hidden="true"></ion-icon></span>
           <span class="cta-titles">

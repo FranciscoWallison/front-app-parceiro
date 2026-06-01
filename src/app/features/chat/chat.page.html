@@ -1,0 +1,105 @@
+<ion-content>
+  <app-page-header
+    title="Assistente IA"
+    subtitle="Crie propostas conversando"
+    back="/home"
+    trailingIcon="refresh-outline"
+    trailingLabel="Nova conversa"
+    (trailingClick)="resetar()"
+  ></app-page-header>
+
+  <div class="chat-shell">
+    @if (mensagens().length === 0) {
+      <div class="empty">
+        <div class="empty-icon">
+          <ion-icon name="sparkles-outline" aria-hidden="true"></ion-icon>
+        </div>
+        <h2 class="t-h3">Como posso ajudar?</h2>
+        <p class="t-meta">Peça em linguagem natural — eu sei criar e consultar propostas.</p>
+        <ul class="suggestions">
+          <li>
+            <button type="button" (click)="enviarSugestao('Lista o catálogo de planos.')">
+              Lista o catálogo de planos
+            </button>
+          </li>
+          <li>
+            <button type="button" (click)="enviarSugestao('Quais propostas eu tenho em aberto?')">
+              Quais propostas eu tenho em aberto?
+            </button>
+          </li>
+          <li>
+            <button type="button" (click)="enviarSugestao('Valide o CPF 12345678909.')">
+              Valide o CPF 12345678909
+            </button>
+          </li>
+        </ul>
+      </div>
+    }
+
+    <ul class="msgs" #scrollArea>
+      @for (m of mensagens(); track m.id) {
+        @switch (m.role) {
+          @case ('user') {
+            <li class="msg msg-user">{{ m.texto }}</li>
+          }
+          @case ('model') {
+            <li class="msg msg-model">
+              @for (linha of (m.texto || '').split('\n'); track $index) {
+                <span class="model-line">{{ linha }}</span>
+              }
+            </li>
+          }
+          @case ('tool') {
+            <li class="msg msg-tool" [class.is-error]="m.toolStatus === 'erro'">
+              <ion-icon
+                [name]="m.toolStatus === 'erro' ? 'close-circle-outline' : 'cog-outline'"
+                aria-hidden="true"
+              ></ion-icon>
+              <span>{{ m.toolResumo }}</span>
+              @if (m.handoff?.kind === 'OPEN_PROPOSTA_DETALHE') {
+                <a class="handoff-link" [routerLink]="['/propostas', m.handoff?.propostaId]">
+                  Abrir proposta
+                  <ion-icon name="arrow-forward-outline" aria-hidden="true"></ion-icon>
+                </a>
+              }
+            </li>
+          }
+          @case ('error') {
+            <li class="msg msg-error">
+              <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
+              {{ m.texto }}
+            </li>
+          }
+        }
+      }
+      @if (loading()) {
+        <li class="msg msg-typing">
+          <ion-spinner name="dots"></ion-spinner>
+          <span>IA pensando…</span>
+        </li>
+      }
+    </ul>
+  </div>
+</ion-content>
+
+<ion-footer class="chat-footer">
+  <form class="chat-input" (ngSubmit)="enviar()">
+    <textarea
+      [(ngModel)]="rascunho"
+      name="rascunho"
+      placeholder="Digite sua mensagem… (Enter envia, Shift+Enter quebra linha)"
+      (keydown.enter)="onEnter($event)"
+      [disabled]="loading()"
+      rows="1"
+      #ta
+      (input)="ajustarAltura(ta)"
+    ></textarea>
+    <button type="submit" class="send-btn" [disabled]="!podeEnviar()" aria-label="Enviar">
+      @if (loading()) {
+        <ion-spinner name="crescent"></ion-spinner>
+      } @else {
+        <ion-icon name="arrow-up-outline" aria-hidden="true"></ion-icon>
+      }
+    </button>
+  </form>
+</ion-footer>

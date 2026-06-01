@@ -1,0 +1,234 @@
+.chat-shell {
+  padding: 0 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+// ----------- Empty state -----------
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  padding: 24px 16px 8px;
+}
+
+.empty-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: rgba(10, 102, 255, 0.08);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ion-color-primary);
+  margin-bottom: 8px;
+
+  ion-icon { font-size: 28px; }
+}
+
+.suggestions {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 360px;
+
+  button {
+    appearance: none;
+    width: 100%;
+    text-align: left;
+    background: #FFFFFF;
+    border: var(--card-border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    color: var(--ink-700);
+    cursor: pointer;
+
+    &:active { background: var(--ink-50); }
+  }
+}
+
+// ----------- Lista de mensagens -----------
+.msgs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.msg {
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+// User: bolha azul claro à direita
+.msg-user {
+  align-self: flex-end;
+  max-width: 80%;
+  background: rgba(10, 102, 255, 0.10);
+  color: var(--ink-900);
+  padding: 10px 14px;
+  border-radius: 14px 14px 4px 14px;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+// Model: texto puro à esquerda
+.msg-model {
+  align-self: flex-start;
+  max-width: 92%;
+  color: var(--ink-900);
+  padding: 0 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.model-line {
+  display: block;
+  word-wrap: break-word;
+}
+
+// Tool call: chip cinza pequeno
+.msg-tool {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: var(--ink-100);
+  color: var(--ink-700);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  max-width: 100%;
+
+  ion-icon { font-size: 14px; color: var(--ink-500); flex-shrink: 0; }
+
+  &.is-error {
+    background: var(--status-danger-bg);
+    color: var(--status-danger-fg);
+    ion-icon { color: var(--status-danger-fg); }
+  }
+}
+
+.handoff-link {
+  margin-left: 8px;
+  font-weight: 600;
+  color: var(--ion-color-primary);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  ion-icon { font-size: 14px; color: var(--ion-color-primary); }
+}
+
+.msg-error {
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--status-danger-bg);
+  color: var(--status-danger-fg);
+  border-radius: 10px;
+  font-size: 13px;
+
+  ion-icon { font-size: 18px; flex-shrink: 0; }
+}
+
+.msg-typing {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink-500);
+  font-size: 13px;
+
+  ion-spinner { --color: var(--ink-500); width: 18px; height: 18px; }
+}
+
+// ----------- Footer -----------
+.chat-footer {
+  background: #FFFFFF;
+  border-top: 1px solid var(--ink-200);
+
+  &::before { background-image: none; }
+}
+
+.chat-input {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 10px 12px;
+  padding-bottom: max(10px, env(safe-area-inset-bottom));
+
+  textarea {
+    flex: 1;
+    appearance: none;
+    border: 1px solid var(--ink-200);
+    border-radius: 22px;
+    background: #FFFFFF;
+    padding: 10px 14px;
+    font-family: var(--font-sans);
+    font-size: 15px;
+    color: var(--ink-900);
+    line-height: 1.4;
+    outline: none;
+    resize: none;
+    max-height: 140px;
+    min-height: 40px;
+    transition: border-color 0.15s;
+
+    &::placeholder {
+      color: var(--ink-500);
+    }
+
+    &:focus {
+      border-color: var(--ion-color-primary);
+    }
+
+    &:disabled {
+      background: var(--ink-50);
+      color: var(--ink-500);
+    }
+  }
+}
+
+.send-btn {
+  appearance: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--ion-color-primary);
+  color: #FFFFFF;
+  border: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+
+  ion-icon { font-size: 18px; }
+  ion-spinner { --color: #FFFFFF; width: 18px; height: 18px; }
+
+  &:disabled {
+    background: var(--ink-300);
+    cursor: not-allowed;
+  }
+
+  &:active:not(:disabled) {
+    background: var(--ion-color-primary-shade);
+  }
+}

@@ -48,6 +48,17 @@
   text-decoration: none;
   color: inherit;
 
+  &.cta-ai {
+    border-color: var(--ion-color-primary);
+    background: rgba(10, 102, 255, 0.02);
+
+    .cta-title { color: var(--ion-color-primary); }
+    .icon-wrap.icon-accent {
+      background: var(--ion-color-primary);
+      color: #FFFFFF;
+    }
+  }
+
   .icon-wrap {
     width: 40px;
     height: 40px;

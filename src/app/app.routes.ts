@@ -83,6 +83,14 @@ export const routes: Routes = [
     loadComponent: () => import('./features/faq/faq.page').then((m) => m.FaqPage),
   },
 
+  // Chat com IA
+  {
+    path: 'chat',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/chat/chat.page').then((m) => m.ChatPage),
+  },
+
   // Admin (operadora simulada)
   {
     path: 'admin/propostas',
