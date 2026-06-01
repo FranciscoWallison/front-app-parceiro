@@ -1,12 +1,8 @@
 /*
  * App Global CSS
  * ----------------------------------------------------------------------------
- * Put style rules here that you want to apply globally. These styles are for
- * the entire app and not just one component. Additionally, this file can be
- * used as an entry point to import other CSS/Sass files to be included in the
- * output CSS.
- * For more information on global stylesheets, visit the documentation:
- * https://ionicframework.com/docs/layout/global-stylesheets
+ * Tokens + overrides Ionic + utilitários tipográficos do design system
+ * "Clean Saúde". Estética inspirada em Notion / Linear / Stripe.
  */
 
 /* Core CSS required for Ionic components to work properly */
@@ -18,20 +14,437 @@
 @import "@ionic/angular/css/typography.css";
 @import "@ionic/angular/css/display.css";
 
-/* Optional CSS utils that can be commented out */
+/* Optional CSS utils */
 @import "@ionic/angular/css/padding.css";
 @import "@ionic/angular/css/float-elements.css";
 @import "@ionic/angular/css/text-alignment.css";
 @import "@ionic/angular/css/text-transformation.css";
 @import "@ionic/angular/css/flex-utils.css";
 
-/**
- * Ionic Dark Mode
- * -----------------------------------------------------
- * For more info, please see:
- * https://ionicframework.com/docs/theming/dark-mode
- */
+/* (Dark mode intencionalmente OFF — design Clean Saúde é light-first) */
+/* @import '@ionic/angular/css/palettes/dark.system.css'; */
 
-/* @import "@ionic/angular/css/palettes/dark.always.css"; */
-/* @import "@ionic/angular/css/palettes/dark.class.css"; */
-@import '@ionic/angular/css/palettes/dark.system.css';
+// =============================================================================
+// Overrides Ionic — quebra o visual default sandbox
+// =============================================================================
+
+body {
+  font-family: var(--font-sans);
+  color: var(--ink-900);
+  background: #FFFFFF;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+ion-content {
+  --background: #FFFFFF;
+}
+
+ion-toolbar {
+  --background: #FFFFFF;
+  --color: var(--ink-900);
+  --border-color: var(--ink-200);
+  --min-height: 56px;
+}
+
+ion-title {
+  font-weight: 600;
+  font-size: 17px;
+  color: var(--ink-900);
+}
+
+ion-card {
+  box-shadow: none;
+  border: var(--card-border);
+  border-radius: var(--card-radius);
+  margin: 0;
+  background: #FFFFFF;
+}
+
+ion-card-header,
+ion-card-content {
+  padding: var(--card-padding);
+}
+
+ion-card-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ink-900);
+}
+
+ion-list {
+  background: transparent;
+  padding: 0;
+}
+
+ion-item {
+  --background: transparent;
+  --border-color: var(--ink-200);
+  --inner-padding-end: 0;
+  --padding-start: 0;
+  --color: var(--ink-900);
+  font-family: var(--font-sans);
+}
+
+ion-input,
+ion-textarea {
+  --background: transparent;
+  --color: var(--ink-900);
+  --placeholder-color: var(--ink-500);
+  font-family: var(--font-sans);
+}
+
+ion-label {
+  --color: var(--ink-900);
+  font-family: var(--font-sans);
+}
+
+ion-chip {
+  --background: var(--ink-100);
+  --color: var(--ink-700);
+  border-radius: 6px;
+  height: 24px;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 0 8px;
+}
+
+ion-segment {
+  --background: transparent;
+}
+
+ion-fab-button {
+  --box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+}
+
+ion-button {
+  --border-radius: 8px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+ion-back-button {
+  --color: var(--ink-700);
+  --icon-font-size: 22px;
+}
+
+// =============================================================================
+// Utilitários tipográficos
+// =============================================================================
+
+.t-h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--ink-900);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.t-h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink-900);
+  line-height: 1.25;
+  margin: 0;
+}
+
+.t-h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ink-900);
+  line-height: 1.3;
+  margin: 0;
+}
+
+.t-body {
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--ink-700);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.t-meta {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--ink-500);
+  margin: 0;
+}
+
+.t-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ink-500);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0;
+}
+
+.t-numeral {
+  font-feature-settings: 'tnum' 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.t-kpi {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--ink-900);
+  line-height: 1;
+  font-feature-settings: 'tnum' 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.t-money {
+  font-weight: 700;
+  font-feature-settings: 'tnum' 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.t-mono {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink-500);
+  word-break: break-all;
+}
+
+// =============================================================================
+// Status pill (substitui ion-chip cru)
+// =============================================================================
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+
+  &::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+  }
+
+  &--warning { background: var(--status-warning-bg); color: var(--status-warning-fg); }
+  &--success { background: var(--status-success-bg); color: var(--status-success-fg); }
+  &--danger  { background: var(--status-danger-bg);  color: var(--status-danger-fg); }
+  &--info    { background: var(--status-info-bg);    color: var(--status-info-fg); }
+  &--neutral { background: var(--status-neutral-bg); color: var(--status-neutral-fg); }
+}
+
+// =============================================================================
+// Brand wordmark "Corretor." (ponto azul accent)
+// =============================================================================
+
+.brand-wordmark {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 24px;
+  color: var(--ink-900);
+  letter-spacing: -0.02em;
+  margin: 0;
+
+  &::after {
+    content: '.';
+    color: var(--ion-color-primary);
+  }
+}
+
+// =============================================================================
+// Section helpers
+// =============================================================================
+
+.section {
+  padding: 0 16px;
+
+  & + .section {
+    margin-top: var(--section-gap);
+  }
+}
+
+.section-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding: 0 16px;
+}
+
+.divider {
+  height: 1px;
+  background: var(--ink-200);
+  margin: 0;
+}
+
+// Helpers genéricos
+.center-spinner {
+  display: flex;
+  justify-content: center;
+  padding: 32px;
+}
+
+ion-spinner {
+  --color: var(--ion-color-primary);
+}
+
+// =============================================================================
+// Form fields underline (padrão Clean Saúde — usado em login, wizards, etc)
+// =============================================================================
+
+.step-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 16px;
+}
+
+.field-row {
+  display: flex;
+  gap: 16px;
+  align-items: flex-end;
+
+  .field { flex: 1; min-width: 0; }
+  .field.flex-2 { flex: 2; }
+}
+
+.field-with-suffix {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  input { flex: 1; }
+  ion-spinner { --color: var(--ink-500); flex-shrink: 0; }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  > input,
+  > textarea,
+  > select {
+    appearance: none;
+    border: 0;
+    border-bottom: 1px solid var(--ink-200);
+    background: transparent;
+    padding: 8px 0;
+    font-family: var(--font-sans);
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--ink-900);
+    line-height: 1.4;
+    outline: none;
+    transition: border-color 0.15s;
+    border-radius: 0;
+
+    &::placeholder {
+      color: var(--ink-300);
+      font-weight: 400;
+    }
+
+    &:focus {
+      border-bottom: 2px solid var(--ion-color-primary);
+      padding-bottom: 7px;
+    }
+
+    &:disabled {
+      color: var(--ink-500);
+      cursor: not-allowed;
+    }
+  }
+
+  ion-select.field-select {
+    --background: transparent;
+    --color: var(--ink-900);
+    --placeholder-color: var(--ink-500);
+    --padding-start: 0;
+    --padding-end: 0;
+    border-bottom: 1px solid var(--ink-200);
+    padding: 8px 0;
+    font-size: 16px;
+    font-weight: 500;
+    min-height: auto;
+  }
+}
+
+.form-error {
+  margin: 0 16px;
+  padding: 12px 14px;
+  background: var(--status-danger-bg);
+  color: var(--status-danger-fg);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+// =============================================================================
+// Wizard footer
+// =============================================================================
+
+.wizard-footer {
+  background: #FFFFFF;
+  border-top: 1px solid var(--ink-200);
+
+  &::before { background-image: none; }
+}
+
+.wizard-nav {
+  display: flex;
+  gap: 12px;
+  padding: 12px 16px;
+
+  .nav-btn-secondary,
+  .nav-btn-primary {
+    flex: 1;
+    appearance: none;
+    height: 48px;
+    border-radius: 10px;
+    font-family: var(--font-sans);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    line-height: 1;
+  }
+
+  .nav-btn-secondary {
+    background: #FFFFFF;
+    color: var(--ink-700);
+    border: 1px solid var(--ink-200);
+
+    &:active { background: var(--ink-50); }
+    &:disabled { opacity: 0.5; cursor: not-allowed; }
+  }
+
+  .nav-btn-primary {
+    background: var(--ion-color-primary);
+    color: #FFFFFF;
+    border: 0;
+
+    &:active { background: var(--ion-color-primary-shade); }
+    &:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    ion-spinner { --color: #FFFFFF; height: 18px; width: 18px; }
+  }
+}
+
+.bottom-spacer { height: 32px; }
+
+// Wizard stepper wrap (espaço acima dos dots)
+.stepper-wrap {
+  padding: 8px 0 24px;
+  background: #FFFFFF;
+}

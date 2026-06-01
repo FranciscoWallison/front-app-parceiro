@@ -1,2 +1,76 @@
-// For information on how to create your own theme, please refer to:
-// https://ionicframework.com/docs/theming/
+// =============================================================================
+// Design system "Clean Saúde" — inspiração Notion / Linear / Stripe.
+// Accent monocromático azul + escala neutra + tipografia Inter.
+// =============================================================================
+
+:root {
+  // ---- Accent monocromático (CTA primário, link ativo, foco, progresso) ------
+  --ion-color-primary: #0A66FF;
+  --ion-color-primary-rgb: 10, 102, 255;
+  --ion-color-primary-contrast: #FFFFFF;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #0958E0;
+  --ion-color-primary-tint: #2376FF;
+
+  // ---- Escala neutra (substitui os "step-N" default do Ionic) -----------------
+  --ink-900: #0F172A;   // títulos, numerais grandes
+  --ink-700: #334155;   // corpo
+  --ink-500: #64748B;   // labels, meta
+  --ink-300: #CBD5E1;   // bordas e divisores fortes
+  --ink-200: #E2E8F0;   // hairline 1px
+  --ink-100: #F1F5F9;   // chip neutro background
+  --ink-50:  #F8FAFC;   // background de seção
+
+  // ---- Status com tint suave + foreground escuro (não saturado) --------------
+  --status-warning-bg: #FEF3C7; --status-warning-fg: #92400E;
+  --status-success-bg: #DCFCE7; --status-success-fg: #166534;
+  --status-danger-bg:  #FEE2E2; --status-danger-fg:  #991B1B;
+  --status-info-bg:    #DBEAFE; --status-info-fg:    #1E40AF;
+  --status-neutral-bg: var(--ink-100); --status-neutral-fg: var(--ink-700);
+
+  // ---- Tipografia ------------------------------------------------------------
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  // ---- Sobrescrever defaults Ionic -------------------------------------------
+  --ion-background-color: #FFFFFF;
+  --ion-background-color-rgb: 255, 255, 255;
+  --ion-text-color: var(--ink-900);
+  --ion-text-color-rgb: 15, 23, 42;
+  --ion-font-family: var(--font-sans);
+
+  --ion-color-step-50:  var(--ink-50);
+  --ion-color-step-100: var(--ink-100);
+  --ion-color-step-150: #ECF0F5;
+  --ion-color-step-200: var(--ink-200);
+  --ion-color-step-250: #DAE1EB;
+  --ion-color-step-300: var(--ink-300);
+  --ion-color-step-350: #B7C2D3;
+  --ion-color-step-400: #94A3B8;
+  --ion-color-step-450: #7B8AA0;
+  --ion-color-step-500: var(--ink-500);
+  --ion-color-step-550: #525E73;
+  --ion-color-step-600: #475569;
+  --ion-color-step-650: #3D4A60;
+  --ion-color-step-700: var(--ink-700);
+  --ion-color-step-750: #283447;
+  --ion-color-step-800: #1E2B3E;
+  --ion-color-step-850: #16223A;
+  --ion-color-step-900: var(--ink-900);
+
+  // Alinha cores neutras Ionic com a paleta nova
+  --ion-color-medium: #64748B;
+  --ion-color-medium-rgb: 100, 116, 139;
+  --ion-color-medium-shade: #525E73;
+  --ion-color-medium-tint: #7B8AA0;
+  --ion-color-light: #F1F5F9;
+  --ion-color-light-rgb: 241, 245, 249;
+  --ion-color-light-shade: #E2E8F0;
+  --ion-color-light-tint: #F8FAFC;
+
+  // ---- Card token (sem shadow, borda hairline) -------------------------------
+  --card-radius: 12px;
+  --card-border: 1px solid var(--ink-200);
+  --card-padding: 16px;
+  --section-gap: 24px;
+}

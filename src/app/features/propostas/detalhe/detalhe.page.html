@@ -1,252 +1,283 @@
-<ion-header>
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/propostas"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Proposta</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content>
+  @if (proposta(); as p) {
+    <app-page-header [title]="p.titularOuEmpresa" back="/propostas"></app-page-header>
 
-<ion-content class="ion-padding">
-  @if (loading()) {
-    <div class="center"><ion-spinner></ion-spinner></div>
-  } @else if (error() && !proposta()) {
-    <ion-text color="danger"><p>{{ error() }}</p></ion-text>
-  } @else if (proposta(); as p) {
-    <ion-card>
-      <ion-card-header>
-        <ion-card-subtitle>#{{ p.numero }} • {{ p.tipo }}</ion-card-subtitle>
-        <ion-card-title>{{ p.titularOuEmpresa }}</ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <ion-chip [color]="STATUS_COLOR[p.status]">{{ STATUS_LABEL[p.status] }}</ion-chip>
-        <ion-list lines="none" class="meta">
-          <ion-item>
-            <ion-label>
-              <p>Plano</p>
-              <h3>{{ p.planoNome }}</h3>
-            </ion-label>
-          </ion-item>
-          <ion-item>
-            <ion-label>
-              <p>Valor mensal</p>
-              <h3>{{ p.valorTotalCents / 100 | currency:'BRL':'symbol':'1.2-2' }}</h3>
-            </ion-label>
-          </ion-item>
-          <ion-item>
-            <ion-label>
-              <p>Criada em</p>
-              <h3>{{ p.criadaEm | date:'short' }}</h3>
-            </ion-label>
-          </ion-item>
-        </ion-list>
-      </ion-card-content>
-    </ion-card>
+    <!-- Hero meta: #numero · tipo · status pill · plano · valor -->
+    <section class="hero">
+      <div class="hero-meta">
+        <span class="proposal-num t-numeral">#{{ p.numero }}</span>
+        <span class="tipo-chip">{{ p.tipo }}</span>
+        <app-status-pill [status]="p.status"></app-status-pill>
+      </div>
+      <p class="t-meta hero-extra">
+        Criada em {{ p.criadaEm | date:'short' }} · {{ p.planoNome }}
+      </p>
+      <div class="hero-value">
+        <span class="t-label">Valor mensal</span>
+        <span class="t-money hero-value-num">
+          {{ p.valorTotalCents / 100 | currency:'BRL':'symbol':'1.2-2' }}
+        </span>
+      </div>
+    </section>
 
     @if (notice()) {
-      <ion-text color="success"><p class="msg">{{ notice() }}</p></ion-text>
+      <div class="section">
+        <p class="notice-banner">
+          <ion-icon name="checkmark-circle-outline" aria-hidden="true"></ion-icon>
+          {{ notice() }}
+        </p>
+      </div>
     }
     @if (error()) {
-      <ion-text color="danger"><p class="msg">{{ error() }}</p></ion-text>
+      <div class="section">
+        <p class="form-error">{{ error() }}</p>
+      </div>
     }
 
+    <!-- Empresa -->
     @if (empresaPayload(); as e) {
-      <ion-card>
-        <ion-card-header><ion-card-title>Empresa</ion-card-title></ion-card-header>
-        <ion-card-content>
-          <p><strong>{{ e.razaoSocial }}</strong></p>
-          <p>CNPJ: {{ e.cnpj }}</p>
-          <p>{{ e.logradouro }}, {{ e.numero }} — {{ e.cidade }}/{{ e.uf }}</p>
-        </ion-card-content>
-      </ion-card>
+      <section class="section detail-section">
+        <span class="t-label">Empresa</span>
+        <dl class="kv-list">
+          <div><dt>Razão social</dt><dd>{{ e.razaoSocial }}</dd></div>
+          <div><dt>CNPJ</dt><dd class="t-numeral">{{ e.cnpj }}</dd></div>
+          <div><dt>Endereço</dt><dd>{{ e.logradouro }}, {{ e.numero }} — {{ e.cidade }}/{{ e.uf }}</dd></div>
+        </dl>
+      </section>
     }
 
+    <!-- Titulares -->
     @if (titularesPayload().length > 0) {
-      <ion-card>
-        <ion-card-header>
-          <ion-card-title>{{ p.tipo === 'PME' ? 'Titulares' : 'Titular' }}</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
+      <section class="section detail-section">
+        <span class="t-label">{{ p.tipo === 'PME' ? 'Titulares' : 'Titular' }}</span>
+        <ul class="titular-list">
           @for (t of titularesPayload(); track t.id) {
-            <div class="titular-item">
-              <strong>{{ t.nome }}</strong> ({{ t.cpf }})<br/>
-              <ion-note>{{ t.email }} • {{ t.telefone }}</ion-note>
+            <li class="titular-item">
+              <div class="titular-head">
+                <span class="t-h3">{{ t.nome }}</span>
+                <span class="t-meta t-numeral">{{ t.cpf }}</span>
+              </div>
+              <p class="t-meta">{{ t.email }} · {{ t.telefone }}</p>
               @if (t.dependentes?.length > 0) {
                 <div class="deps">
-                  <strong>Dependentes:</strong>
+                  <span class="t-label">Dependentes</span>
                   @for (d of t.dependentes; track d.id) {
-                    <p class="dep">— {{ d.nome }} ({{ d.parentesco }})</p>
+                    <p class="dep-row">{{ d.nome }} <span class="t-meta">({{ d.parentesco }})</span></p>
                   }
                 </div>
               }
-            </div>
+            </li>
           }
-        </ion-card-content>
-      </ion-card>
+        </ul>
+      </section>
     }
 
+    <!-- Documentos -->
     @if (documentosPayload().length > 0) {
-      <ion-card>
-        <ion-card-header><ion-card-title>Documentos anexados</ion-card-title></ion-card-header>
-        <ion-card-content>
+      <section class="section detail-section">
+        <span class="t-label">Documentos</span>
+        <ul class="doc-list">
           @for (d of documentosPayload(); track d.id) {
-            <div class="doc-item">
-              <ion-item button (click)="verDocumento(d.id)" lines="none">
-                <ion-icon name="document-attach" slot="start" color="primary"></ion-icon>
-                <ion-label>
-                  <h3>{{ d.tipo }}</h3>
-                  <p>{{ d.nomeArquivo }} ({{ (d.tamanhoBytes / 1024) | number:'1.0-0' }} KB)</p>
-                </ion-label>
-                <ion-icon name="eye-outline" slot="end"></ion-icon>
-              </ion-item>
+            <li class="doc-item">
+              <button type="button" class="doc-row" (click)="verDocumento(d.id)">
+                <ion-icon class="doc-icon" name="document-text-outline" aria-hidden="true"></ion-icon>
+                <div class="doc-info">
+                  <span class="t-h3">{{ d.tipo }}</span>
+                  <span class="t-meta">{{ d.nomeArquivo }} · {{ (d.tamanhoBytes / 1024) | number:'1.0-0' }} KB</span>
+                </div>
+                <ion-icon class="doc-chev" name="eye-outline" aria-hidden="true"></ion-icon>
+              </button>
               @if (d.dadosExtraidos; as ocr) {
                 <div class="ocr-box">
                   <div class="ocr-header">
-                    📋 Extraído automaticamente (confiança {{ ocr.confianca }}%)
+                    <ion-icon name="sparkles-outline" aria-hidden="true"></ion-icon>
+                    <span class="t-label">Extraído automaticamente · confiança {{ ocr.confianca }}%</span>
                   </div>
-                  <ul>
-                    @if (ocr.nome) { <li><strong>Nome:</strong> {{ ocr.nome }}</li> }
-                    @if (ocr.cpf) { <li><strong>CPF:</strong> {{ ocr.cpf }}</li> }
-                    @if (ocr.cnpj) { <li><strong>CNPJ:</strong> {{ ocr.cnpj }}</li> }
-                    @if (ocr.dataNascimento) { <li><strong>Nascimento:</strong> {{ ocr.dataNascimento }}</li> }
-                    @if (ocr.rg) { <li><strong>RG:</strong> {{ ocr.rg }}</li> }
-                  </ul>
+                  <dl class="ocr-data">
+                    @if (ocr.nome) { <div><dt>Nome</dt><dd>{{ ocr.nome }}</dd></div> }
+                    @if (ocr.cpf) { <div><dt>CPF</dt><dd class="t-numeral">{{ ocr.cpf }}</dd></div> }
+                    @if (ocr.cnpj) { <div><dt>CNPJ</dt><dd class="t-numeral">{{ ocr.cnpj }}</dd></div> }
+                    @if (ocr.dataNascimento) { <div><dt>Nascimento</dt><dd>{{ ocr.dataNascimento }}</dd></div> }
+                    @if (ocr.rg) { <div><dt>RG</dt><dd class="t-numeral">{{ ocr.rg }}</dd></div> }
+                  </dl>
                 </div>
               }
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
+    <!-- Assinatura -->
+    @if (assinatura(); as ass) {
+      <section class="section detail-section">
+        <span class="t-label">Assinatura</span>
+        <div class="signature-block">
+          <p class="t-body">Contrato assinado eletronicamente.</p>
+          <p class="t-mono">{{ ass.hash }}</p>
+          <button type="button" class="link-btn" (click)="verPdfAssinado()">
+            <ion-icon name="document-text-outline" aria-hidden="true"></ion-icon>
+            Ver PDF assinado
+          </button>
+        </div>
+      </section>
+    }
+
+    <!-- Pagamento -->
+    @if (pagamentoAtual(); as pay) {
+      <section class="section detail-section">
+        <span class="t-label">Pagamento · {{ pay.metodo }}</span>
+        <div class="pay-value">
+          <span class="t-money pay-amount">{{ pay.valorCents / 100 | currency:'BRL':'symbol':'1.2-2' }}</span>
+          <span class="t-meta">Status: {{ pay.status }}</span>
+        </div>
+        @if (pay.metodo === 'PIX') {
+          @if (qrDataUrl(); as qr) {
+            <div class="qr-wrap">
+              <img [src]="qr" alt="QR PIX" />
             </div>
           }
-        </ion-card-content>
-      </ion-card>
-    }
-
-    @if (assinatura(); as ass) {
-      <ion-card>
-        <ion-card-header>
-          <ion-card-subtitle>Assinatura</ion-card-subtitle>
-          <ion-card-title>Contrato assinado</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <p>Hash: <code class="hash">{{ ass.hash.slice(0, 16) }}...</code></p>
-          <ion-button expand="block" fill="outline" (click)="verPdfAssinado()">
-            <ion-icon name="document-text" slot="start"></ion-icon>
-            Ver PDF assinado
-          </ion-button>
-        </ion-card-content>
-      </ion-card>
-    }
-
-    @if (pagamentoAtual(); as pay) {
-      <ion-card>
-        <ion-card-header>
-          <ion-card-subtitle>Pagamento ({{ pay.metodo }})</ion-card-subtitle>
-          <ion-card-title>{{ pay.valorCents / 100 | currency:'BRL':'symbol':'1.2-2' }}</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          @if (pay.metodo === 'PIX') {
-            @if (qrDataUrl(); as qr) {
-              <div class="qr-wrap">
-                <img [src]="qr" alt="QR PIX" />
-              </div>
-            }
-            <p><strong>PIX Copia e Cola:</strong></p>
-            <pre class="pix-code">{{ pay.copiaColaMock }}</pre>
-            <ion-button expand="block" fill="outline" (click)="copiar(pay.copiaColaMock || '')">
-              <ion-icon name="copy-outline" slot="start"></ion-icon>
-              Copiar código PIX
-            </ion-button>
-            @if (p.status === 'AGUARDANDO_PAGAMENTO') {
-              <div class="aguardando">
-                <ion-spinner name="dots"></ion-spinner>
-                <span>Aguardando confirmação automática...</span>
-              </div>
-            }
-          } @else {
-            <p><strong>Linha digitável:</strong></p>
-            <pre class="pix-code">{{ pay.linhaDigitavel }}</pre>
+          <span class="t-label">Copia e cola</span>
+          <div class="pix-copy">
+            <input readonly [value]="pay.copiaColaMock || ''" />
+            <button type="button" class="copy-btn" (click)="copiar(pay.copiaColaMock || '')" aria-label="Copiar código">
+              <ion-icon name="copy-outline" aria-hidden="true"></ion-icon>
+            </button>
+          </div>
+          @if (p.status === 'AGUARDANDO_PAGAMENTO') {
+            <div class="aguardando-strip">
+              <ion-spinner name="dots"></ion-spinner>
+              <span class="t-meta">Aguardando confirmação automática…</span>
+            </div>
           }
-          <ion-note>Status: {{ pay.status }}</ion-note>
-        </ion-card-content>
-      </ion-card>
+        } @else {
+          <span class="t-label">Linha digitável</span>
+          <div class="pix-copy">
+            <input readonly [value]="pay.linhaDigitavel || ''" />
+            <button type="button" class="copy-btn" (click)="copiar(pay.linhaDigitavel || '')" aria-label="Copiar código">
+              <ion-icon name="copy-outline" aria-hidden="true"></ion-icon>
+            </button>
+          </div>
+        }
+      </section>
     }
 
-    <ion-card>
-      <ion-card-header><ion-card-title>Próximos passos</ion-card-title></ion-card-header>
-      <ion-card-content>
+    <!-- Próximos passos -->
+    <section class="section detail-section">
+      <span class="t-label">Próximos passos</span>
+      <div class="next-steps">
         @switch (p.status) {
           @case ('SIMULADA') {
-            <p>Tire uma foto do documento para avançar.</p>
-            <ion-item>
-              <ion-label position="stacked">Tipo de documento</ion-label>
-              <ion-select [value]="tipoDocSelecionado()" interface="popover"
-                          (ionChange)="onTipoDocChange($any($event).detail.value)">
+            <p class="t-body">Tire uma foto do documento para avançar.</p>
+            <label class="field">
+              <span class="t-label">Tipo de documento</span>
+              <ion-select
+                [value]="tipoDocSelecionado()"
+                interface="popover"
+                class="field-select"
+                (ionChange)="onTipoDocChange($any($event).detail.value)"
+              >
                 @for (t of TIPOS_DOC; track t) {
                   <ion-select-option [value]="t">{{ t }}</ion-select-option>
                 }
               </ion-select>
-            </ion-item>
-            <ion-button expand="block" (click)="anexarDocComCamera()" [disabled]="uploading()">
+            </label>
+            <button type="button" class="step-btn primary" (click)="anexarDocComCamera()" [disabled]="uploading()">
               @if (uploading()) {
-                <ion-spinner slot="start"></ion-spinner>
+                <ion-spinner name="crescent"></ion-spinner>
               } @else {
-                <ion-icon name="document-attach" slot="start"></ion-icon>
+                <ion-icon name="camera-outline" aria-hidden="true"></ion-icon>
               }
               Tirar foto / escolher imagem
-            </ion-button>
+            </button>
           }
           @case ('AGUARDANDO_DOCS') {
-            <p>Você pode anexar mais documentos ou concluir.</p>
-            <ion-item>
-              <ion-label position="stacked">Tipo do próximo</ion-label>
-              <ion-select [value]="tipoDocSelecionado()" interface="popover"
-                          (ionChange)="onTipoDocChange($any($event).detail.value)">
+            <p class="t-body">Você pode anexar mais documentos ou concluir.</p>
+            <label class="field">
+              <span class="t-label">Tipo do próximo</span>
+              <ion-select
+                [value]="tipoDocSelecionado()"
+                interface="popover"
+                class="field-select"
+                (ionChange)="onTipoDocChange($any($event).detail.value)"
+              >
                 @for (t of TIPOS_DOC; track t) {
                   <ion-select-option [value]="t">{{ t }}</ion-select-option>
                 }
               </ion-select>
-            </ion-item>
-            <ion-button expand="block" fill="outline" (click)="anexarDocComCamera()" [disabled]="uploading()">
-              <ion-icon name="document-attach" slot="start"></ion-icon>
+            </label>
+            <button type="button" class="step-btn" (click)="anexarDocComCamera()" [disabled]="uploading()">
+              <ion-icon name="camera-outline" aria-hidden="true"></ion-icon>
               Anexar mais
-            </ion-button>
-            <ion-button expand="block" (click)="concluirDocs()" [disabled]="busy()">
-              <ion-icon name="checkmark-circle" slot="start"></ion-icon>
+            </button>
+            <button type="button" class="step-btn primary" (click)="concluirDocs()" [disabled]="busy()">
+              <ion-icon name="checkmark-outline" aria-hidden="true"></ion-icon>
               Concluir documentos
-            </ion-button>
+            </button>
           }
           @case ('AGUARDANDO_ASSINATURA') {
-            <p>Assine na tela para gerar o PDF.</p>
-            <ion-button expand="block" (click)="assinarComCanvas()" [disabled]="busy()">
-              <ion-icon name="pencil" slot="start"></ion-icon>
+            <p class="t-body">Assine na tela para gerar o PDF.</p>
+            <button type="button" class="step-btn primary" (click)="assinarComCanvas()" [disabled]="busy()">
+              <ion-icon name="pencil-outline" aria-hidden="true"></ion-icon>
               Abrir tela de assinatura
-            </ion-button>
+            </button>
           }
           @case ('AGUARDANDO_PAGAMENTO') {
             @if (!pagamentoAtual()) {
-              <p>Gere um pagamento para o cliente:</p>
-              <ion-button expand="block" (click)="gerarPagamento('PIX')" [disabled]="busy()">
-                <ion-icon name="qr-code" slot="start"></ion-icon>
+              <p class="t-body">Gere um pagamento para o cliente:</p>
+              <button type="button" class="step-btn primary" (click)="gerarPagamento('PIX')" [disabled]="busy()">
+                <ion-icon name="qr-code-outline" aria-hidden="true"></ion-icon>
                 Gerar PIX
-              </ion-button>
-              <ion-button expand="block" fill="outline" (click)="gerarPagamento('BOLETO')" [disabled]="busy()">
+              </button>
+              <button type="button" class="step-btn" (click)="gerarPagamento('BOLETO')" [disabled]="busy()">
+                <ion-icon name="barcode-outline" aria-hidden="true"></ion-icon>
                 Gerar boleto
-              </ion-button>
+              </button>
             } @else {
-              <p><ion-icon name="cloud-done-outline"></ion-icon> O sistema confirma o pagamento automaticamente após 30s do envio (simulador).</p>
+              <p class="t-meta inline-info">
+                <ion-icon name="cloud-done-outline" aria-hidden="true"></ion-icon>
+                O sistema confirma o pagamento automaticamente após 30s do envio (simulador).
+              </p>
             }
           }
-          @case ('TRANSMITIDA') { <p>✅ Proposta transmitida. Aguarde a análise da operadora.</p> }
-          @case ('APROVADA') { <p>✅ Proposta aprovada.</p> }
-          @case ('RECUSADA') { <p>❌ Proposta recusada.</p> }
-          @case ('CANCELADA') { <p>Proposta cancelada.</p> }
+          @case ('TRANSMITIDA') {
+            <p class="t-body inline-info">
+              <ion-icon name="checkmark-circle-outline" class="ok" aria-hidden="true"></ion-icon>
+              Proposta transmitida. Aguarde análise da operadora.
+            </p>
+          }
+          @case ('APROVADA') {
+            <p class="t-body inline-info">
+              <ion-icon name="checkmark-circle-outline" class="ok" aria-hidden="true"></ion-icon>
+              Proposta aprovada.
+            </p>
+          }
+          @case ('RECUSADA') {
+            <p class="t-body inline-info">
+              <ion-icon name="close-circle-outline" class="ko" aria-hidden="true"></ion-icon>
+              Proposta recusada.
+            </p>
+          }
+          @case ('CANCELADA') {
+            <p class="t-body">Proposta cancelada.</p>
+          }
         }
 
         @if (p.status !== 'TRANSMITIDA' && p.status !== 'APROVADA' && p.status !== 'RECUSADA' && p.status !== 'CANCELADA') {
-          <ion-button expand="block" fill="clear" color="danger" (click)="cancelar()" [disabled]="busy()">
-            <ion-icon name="trash" slot="start"></ion-icon>
+          <button type="button" class="step-btn danger-link" (click)="cancelar()" [disabled]="busy()">
+            <ion-icon name="trash-outline" aria-hidden="true"></ion-icon>
             Cancelar proposta
-          </ion-button>
+          </button>
         }
-      </ion-card-content>
-    </ion-card>
+      </div>
+    </section>
+
+    <div class="bottom-spacer"></div>
+  } @else if (loading()) {
+    <div class="center-spinner"><ion-spinner></ion-spinner></div>
+  } @else if (error()) {
+    <div class="section">
+      <p class="form-error">{{ error() }}</p>
+    </div>
   }
 </ion-content>

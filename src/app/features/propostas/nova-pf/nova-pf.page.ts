@@ -4,41 +4,19 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
   AlertController,
-  IonBackButton,
-  IonButton,
-  IonButtons,
-  IonCard,
-  IonCardContent,
-  IonCardHeader,
-  IonCardSubtitle,
-  IonCardTitle,
   IonCheckbox,
   IonContent,
-  IonHeader,
+  IonFooter,
   IonIcon,
-  IonInput,
-  IonItem,
-  IonLabel,
-  IonList,
-  IonProgressBar,
-  IonRadio,
-  IonRadioGroup,
   IonSelect,
   IonSelectOption,
   IonSpinner,
-  IonText,
-  IonTitle,
-  IonToolbar,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
-  add,
-  arrowBack,
-  arrowForward,
-  checkmark,
-  documentText,
-  person,
-  trash,
+  addOutline,
+  checkmarkOutline,
+  trashOutline,
 } from 'ionicons/icons';
 import { CepService } from '../../../core/cep/cep.service';
 import { PlanosService } from '../../../core/planos/planos.service';
@@ -54,6 +32,8 @@ import {
   CpfMaskDirective,
   TelefoneMaskDirective,
 } from '../../../shared/masks/mask.directives';
+import { PageHeaderComponent } from '../../../shared/ui/page-header.component';
+import { WizardStepperComponent } from '../../../shared/ui/wizard-stepper.component';
 
 interface DependenteForm extends DependenteInput {
   uid: number;
@@ -68,31 +48,15 @@ interface DependenteForm extends DependenteInput {
     CpfMaskDirective,
     CepMaskDirective,
     TelefoneMaskDirective,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
     IonContent,
-    IonButtons,
-    IonBackButton,
-    IonButton,
-    IonProgressBar,
-    IonCard,
-    IonCardHeader,
-    IonCardTitle,
-    IonCardSubtitle,
-    IonCardContent,
-    IonList,
-    IonItem,
-    IonLabel,
-    IonInput,
+    IonFooter,
+    IonIcon,
+    IonSpinner,
     IonSelect,
     IonSelectOption,
     IonCheckbox,
-    IonRadioGroup,
-    IonRadio,
-    IonIcon,
-    IonSpinner,
-    IonText,
+    PageHeaderComponent,
+    WizardStepperComponent,
   ],
   templateUrl: './nova-pf.page.html',
   styleUrls: ['./nova-pf.page.scss'],
@@ -104,11 +68,19 @@ export class NovaPfPage implements OnInit {
   private readonly router = inject(Router);
   private readonly alertCtrl = inject(AlertController);
 
+  readonly STEP_LABELS = ['Titular', 'Endereço', 'Dependentes', 'Plano', 'Saúde'];
+  readonly STEP_SUBTITLES: Record<number, { title: string; subtitle: string }> = {
+    1: { title: 'Dados do titular', subtitle: 'Etapa 1 de 5 · informações pessoais' },
+    2: { title: 'Endereço do titular', subtitle: 'Etapa 2 de 5 · endereço residencial' },
+    3: { title: 'Dependentes', subtitle: 'Etapa 3 de 5 · familiares incluídos' },
+    4: { title: 'Escolha o plano', subtitle: 'Etapa 4 de 5 · cobertura e mensalidade' },
+    5: { title: 'Declaração de saúde', subtitle: 'Etapa 5 de 5 · revise e envie' },
+  };
+
   cepBuscando = signal(false);
 
   step = signal(1);
   totalSteps = 5;
-  progress = computed(() => this.step() / this.totalSteps);
 
   loading = signal(false);
   errorMsg = signal<string | null>(null);
@@ -145,21 +117,16 @@ export class NovaPfPage implements OnInit {
     return p.valorTitularCents + numDeps * p.valorDependenteCents;
   });
 
+  stepTitle = computed(() => this.STEP_SUBTITLES[this.step()].title);
+  stepSubtitle = computed(() => this.STEP_SUBTITLES[this.step()].subtitle);
+
   toggleSaude(key: string, ev: Event): void {
     const checked = (ev as CustomEvent<{ checked: boolean }>)?.detail?.checked ?? false;
     this.declaracaoSaude.update((s) => ({ ...s, [key]: checked }));
   }
 
   constructor() {
-    addIcons({
-      person,
-      documentText,
-      arrowBack,
-      arrowForward,
-      checkmark,
-      add,
-      trash,
-    });
+    addIcons({ trashOutline, addOutline, checkmarkOutline });
   }
 
   async ngOnInit(): Promise<void> {

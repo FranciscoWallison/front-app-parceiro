@@ -1,119 +1,137 @@
-<ion-header>
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/home"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Meu perfil</ion-title>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content class="ion-padding">
+<ion-content>
   @if (user(); as u) {
-    <ion-card>
-      <ion-card-header><ion-card-title>Dados</ion-card-title></ion-card-header>
-      <ion-card-content>
-        @if (!editing()) {
-          <ion-list lines="full">
-            <ion-item>
-              <ion-label>
-                <p>Nome</p><h3>{{ u.nome }}</h3>
-              </ion-label>
-            </ion-item>
-            <ion-item>
-              <ion-label>
-                <p>CPF</p><h3>{{ u.cpf }}</h3>
-              </ion-label>
-            </ion-item>
-            <ion-item>
-              <ion-label>
-                <p>E-mail</p><h3>{{ u.email }}</h3>
-              </ion-label>
-            </ion-item>
-            <ion-item>
-              <ion-label>
-                <p>Corretora (CNPJ)</p><h3>{{ u.corretoraCnpj }}</h3>
-              </ion-label>
-            </ion-item>
-          </ion-list>
-          <ion-button expand="block" (click)="iniciarEdit()" class="ion-margin-top">
-            <ion-icon name="pencil" slot="start"></ion-icon>
-            Editar
-          </ion-button>
-        } @else {
-          <ion-list>
-            <ion-item>
-              <ion-label position="stacked">Nome</ion-label>
-              <ion-input name="nome" [(ngModel)]="form.nome"></ion-input>
-            </ion-item>
-            <ion-item>
-              <ion-label position="stacked">E-mail</ion-label>
-              <ion-input name="email" type="email" [(ngModel)]="form.email"></ion-input>
-            </ion-item>
-            <ion-item>
-              <ion-label position="stacked">Telefone</ion-label>
-              <ion-input name="telefone" appTelefoneMask [(ngModel)]="form.telefone" inputmode="tel"></ion-input>
-            </ion-item>
-          </ion-list>
-          <div class="acoes">
-            <ion-button fill="outline" (click)="cancelarEdit()" [disabled]="busy()">Cancelar</ion-button>
-            <ion-button (click)="salvar()" [disabled]="busy()">
-              @if (busy()) {
-                <ion-spinner slot="start"></ion-spinner>
-              } @else {
-                <ion-icon name="checkmark" slot="start"></ion-icon>
-              }
-              Salvar
-            </ion-button>
-          </div>
-        }
-      </ion-card-content>
-    </ion-card>
+    <app-page-header title="Meu perfil" back="/home"></app-page-header>
 
-    @if (biometricAvailable()) {
-      <ion-card>
-        <ion-card-header><ion-card-title>Biometria</ion-card-title></ion-card-header>
-        <ion-card-content>
-          @if (hasBiometric()) {
-            <p>Biometria ativa neste device.</p>
-            <ion-button expand="block" fill="outline" color="danger" (click)="toggleBiometric()" [disabled]="busy()">
-              <ion-icon name="trash" slot="start"></ion-icon>
-              Remover biometria
-            </ion-button>
-          } @else {
-            <p>Habilite para entrar com FaceID/TouchID.</p>
-            <ion-button expand="block" (click)="toggleBiometric()" [disabled]="busy()">
-              <ion-icon name="finger-print" slot="start"></ion-icon>
-              Habilitar biometria
-            </ion-button>
-          }
-        </ion-card-content>
-      </ion-card>
-    }
-
-    <ion-card>
-      <ion-card-header><ion-card-title>Notificações push</ion-card-title></ion-card-header>
-      <ion-card-content>
-        @if (pushEnabled()) {
-          <p>✅ Push notifications ativas neste device.</p>
-        } @else {
-          <p>Push notifications iniciam automaticamente após o login (em device nativo, não browser).</p>
-        }
-        <ion-button expand="block" (click)="testarPush()" [disabled]="busy()">
-          @if (busy()) {
-            <ion-spinner slot="start"></ion-spinner>
-          } @else {
-            <ion-icon name="notifications-outline" slot="start"></ion-icon>
-          }
-          Enviar push de teste
-        </ion-button>
-      </ion-card-content>
-    </ion-card>
+    <section class="profile-hero">
+      <div class="avatar" aria-hidden="true">{{ iniciais() }}</div>
+      <h2 class="t-h2">{{ u.nome }}</h2>
+      <p class="t-meta">{{ u.email }}</p>
+      @if (!editing()) {
+        <button type="button" class="hero-edit-btn" (click)="iniciarEdit()">
+          <ion-icon name="pencil-outline" aria-hidden="true"></ion-icon>
+          Editar perfil
+        </button>
+      }
+    </section>
 
     @if (notice()) {
-      <ion-text color="success"><p>{{ notice() }}</p></ion-text>
+      <div class="section">
+        <p class="notice-banner">
+          <ion-icon name="checkmark-circle-outline" aria-hidden="true"></ion-icon>
+          {{ notice() }}
+        </p>
+      </div>
     }
     @if (error()) {
-      <ion-text color="danger"><p>{{ error() }}</p></ion-text>
+      <div class="section">
+        <p class="form-error">{{ error() }}</p>
+      </div>
     }
+
+    @if (!editing()) {
+      <!-- Read-only: settings-style list -->
+      <section class="settings-section">
+        <span class="t-label section-label">Conta</span>
+        <ul class="settings-list">
+          <li class="settings-row">
+            <span class="row-label">Nome</span>
+            <span class="row-value">{{ u.nome }}</span>
+          </li>
+          <li class="settings-row">
+            <span class="row-label">CPF</span>
+            <span class="row-value t-numeral">{{ u.cpf }}</span>
+          </li>
+          <li class="settings-row">
+            <span class="row-label">E-mail</span>
+            <span class="row-value">{{ u.email }}</span>
+          </li>
+          <li class="settings-row">
+            <span class="row-label">Corretora (CNPJ)</span>
+            <span class="row-value t-numeral">{{ u.corretoraCnpj }}</span>
+          </li>
+        </ul>
+      </section>
+
+      @if (biometricAvailable()) {
+        <section class="settings-section">
+          <span class="t-label section-label">Segurança</span>
+          <ul class="settings-list">
+            <li class="settings-row toggle-row">
+              <div class="row-info">
+                <span class="row-label">Biometria</span>
+                <span class="row-help t-meta">
+                  @if (hasBiometric()) {
+                    Ativa neste device.
+                  } @else {
+                    Entrar com FaceID/TouchID.
+                  }
+                </span>
+              </div>
+              <button
+                type="button"
+                class="toggle"
+                [class.is-on]="hasBiometric()"
+                role="switch"
+                [attr.aria-checked]="hasBiometric() ? 'true' : 'false'"
+                (click)="toggleBiometric()"
+                [disabled]="busy()"
+              >
+                <span class="toggle-knob"></span>
+              </button>
+            </li>
+          </ul>
+        </section>
+      }
+
+      <section class="settings-section">
+        <span class="t-label section-label">Notificações</span>
+        <ul class="settings-list">
+          <li class="settings-row">
+            <div class="row-info">
+              <span class="row-label">Push neste device</span>
+              <span class="row-help t-meta">
+                @if (pushEnabled()) { Ativas. } @else { Inicia após login em device nativo. }
+              </span>
+            </div>
+            @if (pushEnabled()) {
+              <app-status-pill status="APROVADA" [short]="true"></app-status-pill>
+            }
+          </li>
+        </ul>
+        <button type="button" class="settings-action" (click)="testarPush()" [disabled]="busy()">
+          @if (busy()) { <ion-spinner name="crescent"></ion-spinner> }
+          @else { <ion-icon name="notifications-outline" aria-hidden="true"></ion-icon> }
+          Enviar push de teste
+        </button>
+      </section>
+    } @else {
+      <!-- Edit form -->
+      <form class="step-body">
+        <label class="field">
+          <span class="t-label">Nome</span>
+          <input name="nome" [(ngModel)]="form.nome" />
+        </label>
+        <label class="field">
+          <span class="t-label">E-mail</span>
+          <input name="email" type="email" [(ngModel)]="form.email" />
+        </label>
+        <label class="field">
+          <span class="t-label">Telefone</span>
+          <input name="telefone" appTelefoneMask [(ngModel)]="form.telefone" inputmode="tel" placeholder="(11) 99999-9999" />
+        </label>
+
+        <div class="edit-actions">
+          <button type="button" class="nav-btn-secondary" (click)="cancelarEdit()" [disabled]="busy()">
+            Cancelar
+          </button>
+          <button type="button" class="nav-btn-primary" (click)="salvar()" [disabled]="busy()">
+            @if (busy()) { <ion-spinner name="crescent"></ion-spinner> }
+            Salvar
+          </button>
+        </div>
+      </form>
+    }
+
+    <div class="bottom-spacer"></div>
   }
 </ion-content>

@@ -1,51 +1,31 @@
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { CurrencyPipe } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import {
   IonButton,
-  IonButtons,
-  IonCard,
-  IonCardContent,
-  IonCardHeader,
-  IonCardTitle,
-  IonChip,
   IonContent,
-  IonGrid,
-  IonHeader,
   IonIcon,
-  IonItem,
-  IonLabel,
-  IonList,
-  IonMenuButton,
-  IonRow,
-  IonCol,
   IonSpinner,
-  IonText,
-  IonTitle,
-  IonToolbar,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
-  add,
-  briefcase,
-  business,
-  cashOutline,
-  chatbubbles,
-  checkmarkCircle,
-  documents,
-  helpCircle,
-  hourglass,
+  businessOutline,
+  chatbubblesOutline,
+  chevronForwardOutline,
+  documentsOutline,
+  helpCircleOutline,
+  hourglassOutline,
   imagesOutline,
-  list,
-  logOut,
-  personCircle,
+  logOutOutline,
+  personAddOutline,
+  personCircleOutline,
 } from 'ionicons/icons';
 import { AuthService } from '../core/auth/auth.service';
 import { DashboardService } from '../core/dashboard/dashboard.service';
-import {
-  DashboardData,
-  StatusProposta,
-} from '../core/propostas/propostas.types';
+import { DashboardData } from '../core/propostas/propostas.types';
+import { KpiGroupComponent, KpiItem } from '../shared/ui/kpi-group.component';
+import { PageHeaderComponent } from '../shared/ui/page-header.component';
+import { StatusPillComponent } from '../shared/ui/status-pill.component';
 
 @Component({
   selector: 'app-home',
@@ -53,28 +33,13 @@ import {
   imports: [
     RouterLink,
     CurrencyPipe,
-    DatePipe,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
-    IonButtons,
-    IonMenuButton,
     IonContent,
-    IonCard,
-    IonCardHeader,
-    IonCardTitle,
-    IonCardContent,
-    IonGrid,
-    IonRow,
-    IonCol,
-    IonList,
-    IonItem,
-    IonLabel,
-    IonChip,
     IonIcon,
     IonButton,
     IonSpinner,
-    IonText,
+    PageHeaderComponent,
+    KpiGroupComponent,
+    StatusPillComponent,
   ],
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
@@ -94,7 +59,6 @@ export class HomePage implements OnInit {
   errorMsg = signal<string | null>(null);
   data = signal<DashboardData | null>(null);
 
-  // contadores agrupados para os cards
   contadores = computed(() => {
     const d = this.data();
     if (!d) return { abertas: 0, transmitidas: 0, fechadas: 0 };
@@ -110,45 +74,27 @@ export class HomePage implements OnInit {
     return { abertas, transmitidas, fechadas };
   });
 
-  STATUS_LABEL_SHORT: Record<StatusProposta, string> = {
-    RASCUNHO: 'Rascunho',
-    SIMULADA: 'Simulada',
-    AGUARDANDO_DOCS: 'Docs',
-    AGUARDANDO_ASSINATURA: 'Assinar',
-    AGUARDANDO_PAGAMENTO: 'Pagamento',
-    TRANSMITIDA: 'Transmitida',
-    APROVADA: 'Aprovada',
-    RECUSADA: 'Recusada',
-    CANCELADA: 'Cancelada',
-  };
-
-  STATUS_COLOR: Record<StatusProposta, string> = {
-    RASCUNHO: 'medium',
-    SIMULADA: 'tertiary',
-    AGUARDANDO_DOCS: 'warning',
-    AGUARDANDO_ASSINATURA: 'warning',
-    AGUARDANDO_PAGAMENTO: 'warning',
-    TRANSMITIDA: 'primary',
-    APROVADA: 'success',
-    RECUSADA: 'danger',
-    CANCELADA: 'medium',
-  };
+  kpiItems = computed<KpiItem[]>(() => {
+    const c = this.contadores();
+    return [
+      { label: 'Em aberto', value: c.abertas, tone: c.abertas > 0 ? 'warning' : 'neutral' },
+      { label: 'Transmitidas', value: c.transmitidas, tone: c.transmitidas > 0 ? 'info' : 'neutral' },
+      { label: 'Concluídas', value: c.fechadas, tone: 'success' },
+    ];
+  });
 
   constructor() {
     addIcons({
-      personCircle,
-      business,
-      checkmarkCircle,
-      logOut,
-      add,
-      list,
-      briefcase,
-      cashOutline,
-      documents,
+      logOutOutline,
+      personAddOutline,
+      businessOutline,
+      documentsOutline,
       imagesOutline,
-      chatbubbles,
-      helpCircle,
-      hourglass,
+      personCircleOutline,
+      helpCircleOutline,
+      chatbubblesOutline,
+      hourglassOutline,
+      chevronForwardOutline,
     });
   }
 

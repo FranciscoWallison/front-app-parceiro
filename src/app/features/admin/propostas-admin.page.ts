@@ -3,29 +3,22 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   AlertController,
-  IonBackButton,
-  IonButton,
-  IonButtons,
-  IonCard,
-  IonCardContent,
-  IonCardHeader,
-  IonCardTitle,
-  IonChip,
   IonContent,
-  IonHeader,
   IonIcon,
-  IonItem,
-  IonLabel,
-  IonList,
   IonSpinner,
-  IonText,
-  IonTitle,
-  IonToolbar,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { checkmarkCircle, closeCircle, hourglass, refresh } from 'ionicons/icons';
+import {
+  checkmarkCircleOutline,
+  checkmarkDoneOutline,
+  checkmarkOutline,
+  closeCircleOutline,
+  refreshOutline,
+} from 'ionicons/icons';
 import { PropostasService } from '../../core/propostas/propostas.service';
 import { PropostaResumo } from '../../core/propostas/propostas.types';
+import { PageHeaderComponent } from '../../shared/ui/page-header.component';
+import { StatusPillComponent } from '../../shared/ui/status-pill.component';
 
 @Component({
   selector: 'app-propostas-admin',
@@ -33,24 +26,11 @@ import { PropostaResumo } from '../../core/propostas/propostas.types';
   imports: [
     CurrencyPipe,
     DatePipe,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
     IonContent,
-    IonButtons,
-    IonBackButton,
-    IonButton,
-    IonCard,
-    IonCardHeader,
-    IonCardTitle,
-    IonCardContent,
-    IonChip,
     IonIcon,
-    IonList,
-    IonItem,
-    IonLabel,
     IonSpinner,
-    IonText,
+    PageHeaderComponent,
+    StatusPillComponent,
   ],
   templateUrl: './propostas-admin.page.html',
   styleUrls: ['./propostas-admin.page.scss'],
@@ -67,7 +47,13 @@ export class PropostasAdminPage implements OnInit {
   propostas = signal<PropostaResumo[]>([]);
 
   constructor() {
-    addIcons({ checkmarkCircle, closeCircle, hourglass, refresh });
+    addIcons({
+      refreshOutline,
+      checkmarkCircleOutline,
+      checkmarkOutline,
+      checkmarkDoneOutline,
+      closeCircleOutline,
+    });
   }
 
   async ngOnInit(): Promise<void> {

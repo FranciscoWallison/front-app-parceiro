@@ -1,170 +1,137 @@
-<ion-header>
-  <ion-toolbar color="primary">
-    <ion-title>App Corretor</ion-title>
-    <ion-buttons slot="end">
-      <ion-button (click)="logout()" title="Sair">
-        <ion-icon name="log-out" slot="icon-only"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content class="ion-padding">
+<ion-content>
   @if (user(); as u) {
-    <ion-card>
-      <ion-card-header>
-        <ion-card-title>
-          <ion-icon name="person-circle" color="primary"></ion-icon>
-          Olá, {{ u.nome.split(' ')[0] }}
-        </ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <p>{{ u.email }}</p>
-        <p>Corretora: {{ u.corretoraCnpj }}</p>
-      </ion-card-content>
-    </ion-card>
+    <app-page-header
+      [title]="'Olá, ' + (u.nome.split(' ')[0] || u.nome)"
+      subtitle="Aqui está seu resumo de hoje"
+      trailingIcon="log-out-outline"
+      trailingLabel="Sair"
+      (trailingClick)="logout()"
+    ></app-page-header>
   }
 
   @if (loading()) {
-    <div class="center"><ion-spinner></ion-spinner></div>
+    <div class="center-spinner"><ion-spinner></ion-spinner></div>
   } @else if (errorMsg()) {
-    <ion-text color="danger"><p>{{ errorMsg() }}</p></ion-text>
+    <div class="section">
+      <p class="form-error">{{ errorMsg() }}</p>
+    </div>
   } @else if (data(); as d) {
-    <!-- KPIs -->
-    <ion-grid class="kpis">
-      <ion-row>
-        <ion-col size="4">
-          <div class="kpi card-warning">
-            <span class="num">{{ contadores().abertas }}</span>
-            <span class="label">Em aberto</span>
-          </div>
-        </ion-col>
-        <ion-col size="4">
-          <div class="kpi card-primary">
-            <span class="num">{{ contadores().transmitidas }}</span>
-            <span class="label">Transmitidas</span>
-          </div>
-        </ion-col>
-        <ion-col size="4">
-          <div class="kpi card-success">
-            <span class="num">{{ contadores().fechadas }}</span>
-            <span class="label">Concluídas</span>
-          </div>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
+    <!-- KPIs em grupo (sem cards saturados) -->
+    <app-kpi-group [items]="kpiItems()"></app-kpi-group>
 
-    <ion-card>
-      <ion-card-content>
-        <strong>Valor em aberto:</strong>
+    <!-- Valor em aberto: hero tipográfico, sem ion-card -->
+    <section class="section value-section">
+      <span class="t-label">Valor em aberto</span>
+      <span class="value t-money">
         {{ d.valorEmAbertoCents / 100 | currency:'BRL':'symbol':'1.2-2' }}
-        <br><small>{{ d.total }} propostas no total</small>
-      </ion-card-content>
-    </ion-card>
+      </span>
+      <span class="t-meta">{{ d.total }} propostas no total</span>
+    </section>
 
-    <!-- Atalhos -->
-    <ion-grid class="atalhos">
-      <ion-row>
-        <ion-col size="6">
-          <ion-button expand="block" routerLink="/propostas/nova-pf">
-            <ion-icon name="add" slot="start"></ion-icon>
-            Nova PF
-          </ion-button>
-        </ion-col>
-        <ion-col size="6">
-          <ion-button expand="block" routerLink="/propostas/nova-pme">
-            <ion-icon name="business" slot="start"></ion-icon>
-            Nova PME
-          </ion-button>
-        </ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col size="6">
-          <ion-button expand="block" fill="outline" routerLink="/propostas">
-            <ion-icon name="list" slot="start"></ion-icon>
-            Minhas propostas
-          </ion-button>
-        </ion-col>
-        <ion-col size="6">
-          <ion-button expand="block" fill="outline" routerLink="/materiais">
-            <ion-icon name="images-outline" slot="start"></ion-icon>
-            Materiais
-          </ion-button>
-        </ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col size="6">
-          <ion-button expand="block" fill="outline" routerLink="/perfil">
-            <ion-icon name="person-circle" slot="start"></ion-icon>
-            Meu perfil
-          </ion-button>
-        </ion-col>
-        <ion-col size="6">
-          <ion-button expand="block" fill="outline" routerLink="/faq">
-            <ion-icon name="help-circle" slot="start"></ion-icon>
-            FAQ
-          </ion-button>
-        </ion-col>
-      </ion-row>
-      <ion-row>
-        <ion-col size="6">
-          <ion-button expand="block" fill="outline" routerLink="/contato">
-            <ion-icon name="chatbubbles" slot="start"></ion-icon>
-            Contato
-          </ion-button>
-        </ion-col>
-        <ion-col size="6">
-          <ion-button expand="block" fill="outline" color="warning" routerLink="/admin/propostas">
-            <ion-icon name="hourglass" slot="start"></ion-icon>
-            Admin
-          </ion-button>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
+    <!-- CTAs primários: novo PF / PME -->
+    <section class="section">
+      <span class="t-label section-label">Criar proposta</span>
+      <div class="cta-grid">
+        <a class="cta-card" routerLink="/propostas/nova-pf">
+          <span class="icon-wrap"><ion-icon name="person-add-outline" aria-hidden="true"></ion-icon></span>
+          <span class="cta-titles">
+            <span class="cta-title">Nova PF</span>
+            <span class="cta-sub">Pessoa Física</span>
+          </span>
+          <ion-icon class="chev" name="chevron-forward-outline" aria-hidden="true"></ion-icon>
+        </a>
+        <a class="cta-card" routerLink="/propostas/nova-pme">
+          <span class="icon-wrap"><ion-icon name="business-outline" aria-hidden="true"></ion-icon></span>
+          <span class="cta-titles">
+            <span class="cta-title">Nova PME</span>
+            <span class="cta-sub">Pequena/Média Empresa</span>
+          </span>
+          <ion-icon class="chev" name="chevron-forward-outline" aria-hidden="true"></ion-icon>
+        </a>
+      </div>
+    </section>
+
+    <!-- Acessos secundários (lista sem cards) -->
+    <section class="section">
+      <span class="t-label section-label">Atalhos</span>
+      <nav class="quick-list">
+        <a class="quick-item" routerLink="/propostas">
+          <ion-icon name="documents-outline" aria-hidden="true"></ion-icon>
+          <span>Minhas propostas</span>
+          <ion-icon class="chev" name="chevron-forward-outline" aria-hidden="true"></ion-icon>
+        </a>
+        <a class="quick-item" routerLink="/materiais">
+          <ion-icon name="images-outline" aria-hidden="true"></ion-icon>
+          <span>Materiais</span>
+          <ion-icon class="chev" name="chevron-forward-outline" aria-hidden="true"></ion-icon>
+        </a>
+        <a class="quick-item" routerLink="/perfil">
+          <ion-icon name="person-circle-outline" aria-hidden="true"></ion-icon>
+          <span>Meu perfil</span>
+          <ion-icon class="chev" name="chevron-forward-outline" aria-hidden="true"></ion-icon>
+        </a>
+        <a class="quick-item" routerLink="/faq">
+          <ion-icon name="help-circle-outline" aria-hidden="true"></ion-icon>
+          <span>Perguntas frequentes</span>
+          <ion-icon class="chev" name="chevron-forward-outline" aria-hidden="true"></ion-icon>
+        </a>
+        <a class="quick-item" routerLink="/contato">
+          <ion-icon name="chatbubbles-outline" aria-hidden="true"></ion-icon>
+          <span>Contato</span>
+          <ion-icon class="chev" name="chevron-forward-outline" aria-hidden="true"></ion-icon>
+        </a>
+        <a class="quick-item is-muted" routerLink="/admin/propostas">
+          <ion-icon name="hourglass-outline" aria-hidden="true"></ion-icon>
+          <span>Administração</span>
+          <ion-icon class="chev" name="chevron-forward-outline" aria-hidden="true"></ion-icon>
+        </a>
+      </nav>
+    </section>
 
     <!-- Últimas propostas -->
     @if (d.ultimas.length > 0) {
-      <ion-card>
-        <ion-card-header>
-          <ion-card-title>Últimas propostas</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <ion-list lines="full">
-            @for (p of d.ultimas; track p.id) {
-              <ion-item button [routerLink]="['/propostas', p.id]">
-                <ion-icon
-                  [name]="p.tipo === 'PF' ? 'person-circle' : 'briefcase'"
-                  slot="start"
-                  color="primary"
-                ></ion-icon>
-                <ion-label>
-                  <h3>#{{ p.numero }} — {{ p.titularOuEmpresa }}</h3>
-                  <p>{{ p.planoNome }} — {{ p.valorTotalCents / 100 | currency:'BRL':'symbol':'1.2-2' }}</p>
-                  <small>{{ p.atualizadaEm | date:'short' }}</small>
-                </ion-label>
-                <ion-chip slot="end" [color]="STATUS_COLOR[p.status]">
-                  {{ STATUS_LABEL_SHORT[p.status] }}
-                </ion-chip>
-              </ion-item>
-            }
-          </ion-list>
-        </ion-card-content>
-      </ion-card>
+      <section class="section">
+        <div class="section-header-row">
+          <span class="t-label">Últimas propostas</span>
+          <a class="link-small" routerLink="/propostas">Ver todas</a>
+        </div>
+        <ul class="proposal-list">
+          @for (p of d.ultimas; track p.id) {
+            <li>
+              <a class="proposal-item" [routerLink]="['/propostas', p.id]">
+                <div class="proposal-main">
+                  <span class="proposal-num t-numeral">#{{ p.numero }}</span>
+                  <span class="proposal-name">{{ p.titularOuEmpresa }}</span>
+                  <span class="t-meta">
+                    {{ p.planoNome }} · {{ p.valorTotalCents / 100 | currency:'BRL':'symbol':'1.2-2' }}
+                  </span>
+                </div>
+                <app-status-pill [status]="p.status" [short]="true"></app-status-pill>
+              </a>
+            </li>
+          }
+        </ul>
+      </section>
     }
 
-    <!-- Biometria -->
+    <!-- Biometria opcional -->
     @if (biometricAvailable() && !hasBiometric()) {
-      <ion-card>
-        <ion-card-content>
-          <p>Ative biometria para entrar mais rápido na próxima vez.</p>
-          <ion-button expand="block" (click)="enableBiometric()" [disabled]="busy()">
-            Habilitar biometria
+      <section class="section">
+        <div class="biometric-card">
+          <div>
+            <span class="t-h3">Ative biometria</span>
+            <p class="t-meta">Entre mais rápido na próxima vez usando FaceID ou impressão digital.</p>
+          </div>
+          <ion-button (click)="enableBiometric()" [disabled]="busy()" class="cta-primary">
+            Habilitar
           </ion-button>
           @if (notice()) {
-            <p class="notice">{{ notice() }}</p>
+            <p class="t-meta notice">{{ notice() }}</p>
           }
-        </ion-card-content>
-      </ion-card>
+        </div>
+      </section>
     }
+
+    <div class="bottom-spacer"></div>
   }
 </ion-content>

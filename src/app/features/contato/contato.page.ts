@@ -1,54 +1,24 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
-  IonBackButton,
-  IonButton,
-  IonButtons,
-  IonCard,
-  IonCardContent,
-  IonCardHeader,
-  IonCardTitle,
   IonContent,
-  IonHeader,
   IonIcon,
-  IonInput,
-  IonItem,
-  IonLabel,
-  IonList,
   IonSpinner,
-  IonText,
-  IonTextarea,
-  IonTitle,
-  IonToolbar,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { send } from 'ionicons/icons';
+import { checkmarkCircleOutline, sendOutline } from 'ionicons/icons';
 import { ContatoService } from '../../core/contato/contato.service';
+import { PageHeaderComponent } from '../../shared/ui/page-header.component';
 
 @Component({
   selector: 'app-contato',
   standalone: true,
   imports: [
     FormsModule,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
     IonContent,
-    IonButtons,
-    IonBackButton,
-    IonButton,
-    IonCard,
-    IonCardHeader,
-    IonCardTitle,
-    IonCardContent,
-    IonList,
-    IonItem,
-    IonLabel,
-    IonInput,
-    IonTextarea,
     IonIcon,
     IonSpinner,
-    IonText,
+    PageHeaderComponent,
   ],
   templateUrl: './contato.page.html',
   styleUrls: ['./contato.page.scss'],
@@ -63,7 +33,7 @@ export class ContatoPage {
   error = signal<string | null>(null);
 
   constructor() {
-    addIcons({ send });
+    addIcons({ sendOutline, checkmarkCircleOutline });
   }
 
   async enviar(): Promise<void> {

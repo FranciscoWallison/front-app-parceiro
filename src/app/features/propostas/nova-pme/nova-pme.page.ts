@@ -3,31 +3,17 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
-  IonBackButton,
-  IonButton,
-  IonButtons,
-  IonCard,
-  IonCardContent,
-  IonCardHeader,
-  IonCardSubtitle,
-  IonCardTitle,
   IonContent,
-  IonHeader,
+  IonFooter,
   IonIcon,
-  IonInput,
-  IonItem,
-  IonLabel,
-  IonList,
-  IonProgressBar,
-  IonRadio,
-  IonRadioGroup,
   IonSpinner,
-  IonText,
-  IonTitle,
-  IonToolbar,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { add, arrowBack, arrowForward, business, checkmark, trash } from 'ionicons/icons';
+import {
+  addOutline,
+  checkmarkOutline,
+  trashOutline,
+} from 'ionicons/icons';
 import { PlanosService } from '../../../core/planos/planos.service';
 import { PropostasService } from '../../../core/propostas/propostas.service';
 import {
@@ -36,6 +22,14 @@ import {
   TitularInput,
 } from '../../../core/propostas/propostas.types';
 import { digits } from '../../../shared/masks/format.utils';
+import {
+  CepMaskDirective,
+  CnpjMaskDirective,
+  CpfMaskDirective,
+  TelefoneMaskDirective,
+} from '../../../shared/masks/mask.directives';
+import { PageHeaderComponent } from '../../../shared/ui/page-header.component';
+import { WizardStepperComponent } from '../../../shared/ui/wizard-stepper.component';
 
 interface TitularForm extends TitularInput {
   uid: number;
@@ -47,28 +41,16 @@ interface TitularForm extends TitularInput {
   imports: [
     FormsModule,
     CurrencyPipe,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
+    CpfMaskDirective,
+    CnpjMaskDirective,
+    CepMaskDirective,
+    TelefoneMaskDirective,
     IonContent,
-    IonButtons,
-    IonBackButton,
-    IonButton,
-    IonProgressBar,
-    IonCard,
-    IonCardHeader,
-    IonCardSubtitle,
-    IonCardTitle,
-    IonCardContent,
-    IonList,
-    IonItem,
-    IonLabel,
-    IonInput,
-    IonRadioGroup,
-    IonRadio,
+    IonFooter,
     IonIcon,
     IonSpinner,
-    IonText,
+    PageHeaderComponent,
+    WizardStepperComponent,
   ],
   templateUrl: './nova-pme.page.html',
   styleUrls: ['./nova-pme.page.scss'],
@@ -78,9 +60,16 @@ export class NovaPmePage implements OnInit {
   private readonly planosSvc = inject(PlanosService);
   private readonly router = inject(Router);
 
+  readonly STEP_LABELS = ['Empresa', 'Titulares', 'Plano', 'Resumo'];
+  readonly STEP_SUBTITLES: Record<number, { title: string; subtitle: string }> = {
+    1: { title: 'Dados da empresa', subtitle: 'Etapa 1 de 4 · informações cadastrais' },
+    2: { title: 'Funcionários titulares', subtitle: 'Etapa 2 de 4 · vidas cobertas' },
+    3: { title: 'Escolha o plano', subtitle: 'Etapa 3 de 4 · cobertura e mensalidade' },
+    4: { title: 'Resumo', subtitle: 'Etapa 4 de 4 · revise e envie' },
+  };
+
   step = signal(1);
   totalSteps = 4;
-  progress = computed(() => this.step() / this.totalSteps);
 
   loading = signal(false);
   errorMsg = signal<string | null>(null);
@@ -110,8 +99,11 @@ export class NovaPmePage implements OnInit {
     return this.titulares().length * p.valorTitularCents;
   });
 
+  stepTitle = computed(() => this.STEP_SUBTITLES[this.step()].title);
+  stepSubtitle = computed(() => this.STEP_SUBTITLES[this.step()].subtitle);
+
   constructor() {
-    addIcons({ business, arrowBack, arrowForward, checkmark, add, trash });
+    addIcons({ trashOutline, addOutline, checkmarkOutline });
   }
 
   async ngOnInit(): Promise<void> {

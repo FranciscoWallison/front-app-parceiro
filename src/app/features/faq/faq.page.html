@@ -1,30 +1,27 @@
-<ion-header>
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/home"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Perguntas frequentes</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content>
+  <app-page-header title="Perguntas frequentes" back="/home"></app-page-header>
 
-<ion-content class="ion-padding">
   @if (loading()) {
-    <ion-spinner></ion-spinner>
+    <div class="center-spinner"><ion-spinner></ion-spinner></div>
   } @else if (error()) {
-    <ion-text color="danger"><p>{{ error() }}</p></ion-text>
+    <div class="section"><p class="form-error">{{ error() }}</p></div>
   } @else {
     @for (g of categorias(); track g.cat) {
-      <h3 class="cat">{{ g.cat }}</h3>
-      <ion-accordion-group>
-        @for (it of g.items; track it.id) {
-          <ion-accordion [value]="it.id">
-            <ion-item slot="header">
-              <ion-label>{{ it.pergunta }}</ion-label>
-            </ion-item>
-            <div class="resposta" slot="content">{{ it.resposta }}</div>
-          </ion-accordion>
-        }
-      </ion-accordion-group>
+      <section class="faq-section">
+        <span class="t-label section-label">{{ g.cat }}</span>
+        <ion-accordion-group class="faq-accordion">
+          @for (it of g.items; track it.id) {
+            <ion-accordion [value]="it.id" toggleIconSlot="end">
+              <ion-item slot="header" lines="none">
+                <ion-label class="faq-question">{{ it.pergunta }}</ion-label>
+              </ion-item>
+              <div class="faq-answer" slot="content">{{ it.resposta }}</div>
+            </ion-accordion>
+          }
+        </ion-accordion-group>
+      </section>
     }
   }
+
+  <div class="bottom-spacer"></div>
 </ion-content>

@@ -1,79 +1,74 @@
-<ion-header>
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/home"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Admin — Operadora</ion-title>
-    <ion-buttons slot="end">
-      <ion-button (click)="recarregar()" [disabled]="loading()">
-        <ion-icon name="refresh" slot="icon-only"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+<ion-content>
+  <app-page-header
+    title="Administração"
+    subtitle="Aprovação manual de propostas transmitidas"
+    back="/home"
+    trailingIcon="refresh-outline"
+    trailingLabel="Recarregar"
+    (trailingClick)="recarregar()"
+  ></app-page-header>
 
-<ion-content class="ion-padding">
-  <ion-card class="info-card">
-    <ion-card-content>
-      <p>
-        Painel manual de aprovação/recusa. Em paralelo roda um <strong>cron simulador</strong>
-        que processa propostas TRANSMITIDA há mais de 60s automaticamente (90% APROVADA, 10% RECUSADA).
-      </p>
-    </ion-card-content>
-  </ion-card>
+  <div class="section">
+    <p class="cron-banner">
+      <span class="status-pill status-pill--info">Modo cron simulado</span>
+      <span class="t-meta">
+        Em paralelo, um cron processa TRANSMITIDA há +60s automaticamente (90% aprovada, 10% recusada).
+      </span>
+    </p>
+  </div>
 
   @if (notice()) {
-    <ion-text color="success"><p class="msg">{{ notice() }}</p></ion-text>
+    <div class="section">
+      <p class="notice-banner">
+        <ion-icon name="checkmark-circle-outline" aria-hidden="true"></ion-icon>
+        {{ notice() }}
+      </p>
+    </div>
   }
   @if (error()) {
-    <ion-text color="danger"><p class="msg">{{ error() }}</p></ion-text>
+    <div class="section">
+      <p class="form-error">{{ error() }}</p>
+    </div>
   }
 
   @if (loading()) {
-    <div class="center"><ion-spinner></ion-spinner></div>
+    <div class="center-spinner"><ion-spinner></ion-spinner></div>
   } @else if (propostas().length === 0) {
-    <ion-card>
-      <ion-card-content>
-        <p>Nenhuma proposta aguardando análise no momento.</p>
-      </ion-card-content>
-    </ion-card>
+    <div class="empty-state">
+      <div class="empty-icon">
+        <ion-icon name="checkmark-done-outline" aria-hidden="true"></ion-icon>
+      </div>
+      <h2 class="t-h3">Nenhuma proposta aguardando</h2>
+      <p class="t-meta">Tudo em dia. Volte mais tarde.</p>
+    </div>
   } @else {
-    <ion-list lines="full">
+    <ul class="admin-list">
       @for (p of propostas(); track p.id) {
-        <ion-item button (click)="abrir(p)">
-          <ion-icon name="hourglass" slot="start" color="warning"></ion-icon>
-          <ion-label>
-            <h2>#{{ p.numero }} — {{ p.titularOuEmpresa }}</h2>
-            <p>{{ p.planoNome }} — {{ p.valorTotalCents / 100 | currency:'BRL':'symbol':'1.2-2' }}/mês</p>
-            <ion-text color="medium">
-              <small>Transmitida em {{ p.atualizadaEm | date:'short' }}</small>
-            </ion-text>
-          </ion-label>
-          <ion-chip color="warning" slot="end">{{ p.tipo }}</ion-chip>
-        </ion-item>
-        <div class="acoes">
-          <ion-button
-            fill="solid"
-            color="success"
-            (click)="aprovar(p)"
-            [disabled]="busy()"
-            size="small"
-          >
-            <ion-icon name="checkmark-circle" slot="start"></ion-icon>
-            Aprovar
-          </ion-button>
-          <ion-button
-            fill="outline"
-            color="danger"
-            (click)="recusar(p)"
-            [disabled]="busy()"
-            size="small"
-          >
-            <ion-icon name="close-circle" slot="start"></ion-icon>
-            Recusar
-          </ion-button>
-        </div>
+        <li class="admin-card">
+          <button type="button" class="admin-head" (click)="abrir(p)">
+            <span class="proposal-num t-numeral">#{{ p.numero }}</span>
+            <span class="admin-name">{{ p.titularOuEmpresa }}</span>
+            <app-status-pill status="TRANSMITIDA" [short]="true"></app-status-pill>
+          </button>
+          <div class="admin-meta">
+            <span class="t-meta">{{ p.tipo }} · {{ p.planoNome }}</span>
+            <span class="t-money admin-value">{{ p.valorTotalCents / 100 | currency:'BRL':'symbol':'1.2-2' }}/mês</span>
+          </div>
+          <p class="t-meta admin-time">Transmitida em {{ p.atualizadaEm | date:'short' }}</p>
+          <div class="admin-actions">
+            <button type="button" class="action-btn outline-danger" (click)="recusar(p)" [disabled]="busy()">
+              <ion-icon name="close-circle-outline" aria-hidden="true"></ion-icon>
+              Recusar
+            </button>
+            <button type="button" class="action-btn solid-success" (click)="aprovar(p)" [disabled]="busy()">
+              <ion-icon name="checkmark-outline" aria-hidden="true"></ion-icon>
+              Aprovar
+            </button>
+          </div>
+        </li>
       }
-    </ion-list>
+    </ul>
   }
+
+  <div class="bottom-spacer"></div>
 </ion-content>

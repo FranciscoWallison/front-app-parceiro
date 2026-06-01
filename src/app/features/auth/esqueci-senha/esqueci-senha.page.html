@@ -1,69 +1,72 @@
-<ion-header>
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/login"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Esqueci minha senha</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content>
+  <div class="reset-shell">
+    <a class="back-link" routerLink="/login">
+      <ion-icon name="chevron-back-outline" aria-hidden="true"></ion-icon>
+      Voltar para login
+    </a>
 
-<ion-content class="ion-padding">
-  <ion-card>
+    <div class="hero">
+      @if (stage() === 'cpf') {
+        <h1 class="t-h1">Recuperar senha</h1>
+        <p class="t-meta">Informe seu CPF — vamos enviar um token por e-mail.</p>
+      } @else {
+        <h1 class="t-h1">Token + nova senha</h1>
+        <p class="t-meta">Cole o token recebido e defina uma nova senha.</p>
+      }
+    </div>
+
     @if (stage() === 'cpf') {
-      <ion-card-header>
-        <ion-card-subtitle>Passo 1</ion-card-subtitle>
-        <ion-card-title>Informe seu CPF</ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <ion-list>
-          <ion-item>
-            <ion-label position="stacked">CPF</ion-label>
-            <ion-input name="cpf" [(ngModel)]="cpf" inputmode="numeric" placeholder="00000000000"></ion-input>
-          </ion-item>
-        </ion-list>
+      <form class="form" (ngSubmit)="pedirToken()">
+        <label class="field">
+          <span class="t-label">CPF</span>
+          <input name="cpf" appCpfMask [(ngModel)]="cpf" inputmode="numeric" placeholder="000.000.000-00" />
+        </label>
+
         @if (error()) {
-          <ion-text color="danger"><p>{{ error() }}</p></ion-text>
+          <p class="form-error inline">{{ error() }}</p>
         }
-        <ion-button expand="block" (click)="pedirToken()" [disabled]="busy()" class="ion-margin-top">
+
+        <button type="submit" class="nav-btn-primary" [disabled]="busy()">
           @if (busy()) {
-            <ion-spinner slot="start"></ion-spinner>
+            <ion-spinner name="crescent"></ion-spinner>
           } @else {
-            <ion-icon name="mail-outline" slot="start"></ion-icon>
+            <ion-icon name="mail-outline" aria-hidden="true"></ion-icon>
           }
           Gerar token
-        </ion-button>
-      </ion-card-content>
+        </button>
+      </form>
     } @else {
-      <ion-card-header>
-        <ion-card-subtitle>Passo 2</ion-card-subtitle>
-        <ion-card-title>Token + nova senha</ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
+      <form class="form" (ngSubmit)="resetar()">
         @if (notice()) {
-          <ion-text color="medium"><p>{{ notice() }}</p></ion-text>
+          <p class="notice-banner">
+            <ion-icon name="checkmark-circle-outline" aria-hidden="true"></ion-icon>
+            {{ notice() }}
+          </p>
         }
-        <ion-list>
-          <ion-item>
-            <ion-label position="stacked">Token</ion-label>
-            <ion-input name="token" [(ngModel)]="token" placeholder="cole o token aqui"></ion-input>
-          </ion-item>
-          <ion-item>
-            <ion-label position="stacked">Nova senha</ion-label>
-            <ion-input name="novaSenha" type="password" [(ngModel)]="novaSenha" placeholder="mín. 6 chars"></ion-input>
-          </ion-item>
-        </ion-list>
+
+        <label class="field">
+          <span class="t-label">Token</span>
+          <input name="token" [(ngModel)]="token" placeholder="Cole o token aqui" />
+        </label>
+
+        <label class="field">
+          <span class="t-label">Nova senha</span>
+          <input name="novaSenha" type="password" [(ngModel)]="novaSenha" placeholder="Mín. 6 caracteres" />
+        </label>
+
         @if (error()) {
-          <ion-text color="danger"><p>{{ error() }}</p></ion-text>
+          <p class="form-error inline">{{ error() }}</p>
         }
-        <ion-button expand="block" (click)="resetar()" [disabled]="busy()" class="ion-margin-top">
+
+        <button type="submit" class="nav-btn-primary" [disabled]="busy()">
           @if (busy()) {
-            <ion-spinner slot="start"></ion-spinner>
+            <ion-spinner name="crescent"></ion-spinner>
           } @else {
-            <ion-icon name="key-outline" slot="start"></ion-icon>
+            <ion-icon name="key-outline" aria-hidden="true"></ion-icon>
           }
           Trocar senha
-        </ion-button>
-      </ion-card-content>
+        </button>
+      </form>
     }
-  </ion-card>
+  </div>
 </ion-content>

@@ -1,44 +1,35 @@
-<ion-header>
-  <ion-toolbar color="primary">
-    <ion-buttons slot="start">
-      <ion-back-button defaultHref="/home"></ion-back-button>
-    </ion-buttons>
-    <ion-title>Fale conosco</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content>
+  <app-page-header title="Fale conosco" subtitle="Mande sua dúvida ou sugestão" back="/home"></app-page-header>
 
-<ion-content class="ion-padding">
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>Envie sua mensagem</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      <ion-list>
-        <ion-item>
-          <ion-label position="stacked">Assunto*</ion-label>
-          <ion-input name="assunto" [(ngModel)]="assunto" placeholder="Ex: Dúvida sobre proposta PME"></ion-input>
-        </ion-item>
-        <ion-item>
-          <ion-label position="stacked">Mensagem*</ion-label>
-          <ion-textarea name="mensagem" [(ngModel)]="mensagem" rows="6" placeholder="Descreva sua dúvida..."></ion-textarea>
-        </ion-item>
-      </ion-list>
+  <form class="step-body">
+    <label class="field">
+      <span class="t-label">Assunto*</span>
+      <input name="assunto" [(ngModel)]="assunto" placeholder="Ex: Dúvida sobre proposta PME" />
+    </label>
+    <label class="field">
+      <span class="t-label">Mensagem*</span>
+      <textarea name="mensagem" [(ngModel)]="mensagem" rows="6" placeholder="Descreva sua dúvida…"></textarea>
+    </label>
 
-      @if (error()) {
-        <ion-text color="danger"><p>{{ error() }}</p></ion-text>
+    @if (error()) {
+      <p class="form-error inline">{{ error() }}</p>
+    }
+    @if (notice()) {
+      <p class="notice-banner">
+        <ion-icon name="checkmark-circle-outline" aria-hidden="true"></ion-icon>
+        {{ notice() }}
+      </p>
+    }
+
+    <button type="button" class="nav-btn-primary" (click)="enviar()" [disabled]="busy()">
+      @if (busy()) {
+        <ion-spinner name="crescent"></ion-spinner>
+      } @else {
+        <ion-icon name="send-outline" aria-hidden="true"></ion-icon>
       }
-      @if (notice()) {
-        <ion-text color="success"><p>{{ notice() }}</p></ion-text>
-      }
+      Enviar mensagem
+    </button>
+  </form>
 
-      <ion-button expand="block" (click)="enviar()" [disabled]="busy()" class="ion-margin-top">
-        @if (busy()) {
-          <ion-spinner slot="start"></ion-spinner>
-        } @else {
-          <ion-icon name="send" slot="start"></ion-icon>
-        }
-        Enviar
-      </ion-button>
-    </ion-card-content>
-  </ion-card>
+  <div class="bottom-spacer"></div>
 </ion-content>

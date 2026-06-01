@@ -1,36 +1,21 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
-  IonBackButton,
-  IonButton,
-  IonButtons,
-  IonCard,
-  IonCardContent,
-  IonCardHeader,
-  IonCardTitle,
   IonContent,
-  IonHeader,
   IonIcon,
-  IonInput,
-  IonItem,
-  IonLabel,
-  IonList,
   IonSpinner,
-  IonText,
-  IonTitle,
-  IonToolbar,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
-  checkmark,
-  fingerPrint,
+  checkmarkCircleOutline,
   notificationsOutline,
-  pencil,
-  trash,
+  pencilOutline,
 } from 'ionicons/icons';
 import { AuthService } from '../../core/auth/auth.service';
 import { PushService } from '../../core/push/push.service';
 import { TelefoneMaskDirective } from '../../shared/masks/mask.directives';
+import { PageHeaderComponent } from '../../shared/ui/page-header.component';
+import { StatusPillComponent } from '../../shared/ui/status-pill.component';
 
 @Component({
   selector: 'app-perfil',
@@ -38,24 +23,11 @@ import { TelefoneMaskDirective } from '../../shared/masks/mask.directives';
   imports: [
     FormsModule,
     TelefoneMaskDirective,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
     IonContent,
-    IonButtons,
-    IonBackButton,
-    IonButton,
-    IonCard,
-    IonCardHeader,
-    IonCardTitle,
-    IonCardContent,
-    IonList,
-    IonItem,
-    IonLabel,
-    IonInput,
     IonIcon,
     IonSpinner,
-    IonText,
+    PageHeaderComponent,
+    StatusPillComponent,
   ],
   templateUrl: './perfil.page.html',
   styleUrls: ['./perfil.page.scss'],
@@ -73,10 +45,18 @@ export class PerfilPage implements OnInit {
   biometricAvailable = signal(false);
   pushEnabled = this.push.enabled;
 
+  iniciais = computed(() => {
+    const nome = this.user()?.nome ?? '';
+    const partes = nome.trim().split(/\s+/).filter(Boolean);
+    if (partes.length === 0) return '?';
+    if (partes.length === 1) return partes[0].slice(0, 2).toUpperCase();
+    return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
+  });
+
   form = { nome: '', email: '', telefone: '' };
 
   constructor() {
-    addIcons({ pencil, checkmark, fingerPrint, trash, notificationsOutline });
+    addIcons({ pencilOutline, checkmarkCircleOutline, notificationsOutline });
   }
 
   async ngOnInit(): Promise<void> {

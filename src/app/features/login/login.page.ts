@@ -3,23 +3,12 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import {
   IonButton,
-  IonCard,
-  IonCardContent,
-  IonCardHeader,
-  IonCardTitle,
   IonContent,
-  IonHeader,
   IonIcon,
-  IonInput,
-  IonItem,
-  IonLabel,
   IonSpinner,
-  IonText,
-  IonTitle,
-  IonToolbar,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { fingerPrint, lockClosed, person } from 'ionicons/icons';
+import { fingerPrint } from 'ionicons/icons';
 import { AuthService } from '../../core/auth/auth.service';
 import { CpfMaskDirective } from '../../shared/masks/mask.directives';
 
@@ -30,21 +19,10 @@ import { CpfMaskDirective } from '../../shared/masks/mask.directives';
     FormsModule,
     RouterLink,
     CpfMaskDirective,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
     IonContent,
-    IonCard,
-    IonCardHeader,
-    IonCardTitle,
-    IonCardContent,
-    IonItem,
-    IonLabel,
-    IonInput,
     IonButton,
     IonIcon,
     IonSpinner,
-    IonText,
   ],
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
@@ -62,7 +40,7 @@ export class LoginPage implements OnInit {
   biometricAvailable = signal(false);
 
   constructor() {
-    addIcons({ lockClosed, person, fingerPrint });
+    addIcons({ fingerPrint });
   }
 
   async ngOnInit(): Promise<void> {

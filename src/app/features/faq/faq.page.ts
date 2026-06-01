@@ -2,36 +2,26 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import {
   IonAccordion,
   IonAccordionGroup,
-  IonBackButton,
-  IonButtons,
   IonContent,
-  IonHeader,
   IonItem,
   IonLabel,
   IonSpinner,
-  IonText,
-  IonTitle,
-  IonToolbar,
 } from '@ionic/angular/standalone';
 import { FaqService } from '../../core/faq/faq.service';
 import { FaqItem } from '../../core/propostas/propostas.types';
+import { PageHeaderComponent } from '../../shared/ui/page-header.component';
 
 @Component({
   selector: 'app-faq',
   standalone: true,
   imports: [
-    IonHeader,
-    IonToolbar,
-    IonTitle,
     IonContent,
-    IonButtons,
-    IonBackButton,
     IonAccordionGroup,
     IonAccordion,
     IonItem,
     IonLabel,
     IonSpinner,
-    IonText,
+    PageHeaderComponent,
   ],
   templateUrl: './faq.page.html',
   styleUrls: ['./faq.page.scss'],

@@ -1,51 +1,233 @@
-.center {
-  display: flex;
-  justify-content: center;
-  padding: 24px;
+.section-label {
+  display: block;
+  margin: 0 16px 12px;
 }
 
-.notice {
-  margin-top: 12px;
-  font-size: 0.9em;
-  color: var(--ion-color-medium);
-  text-align: center;
-}
-
-ion-card-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.kpis .kpi {
+.value-section {
   display: flex;
   flex-direction: column;
+  gap: 6px;
+
+  .value {
+    font-size: 28px;
+    color: var(--ink-900);
+    line-height: 1;
+  }
+}
+
+.section-header-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 0 16px 12px;
+}
+
+.link-small {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ion-color-primary);
+  text-decoration: none;
+}
+
+// ---- CTAs primários PF / PME ------------------------------------------------
+.cta-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 16px;
+}
+
+.cta-card {
+  display: flex;
   align-items: center;
-  padding: 12px 4px;
-  border-radius: 12px;
-  color: white;
-  text-align: center;
+  gap: 14px;
+  padding: 16px;
+  border: var(--card-border);
+  border-radius: var(--card-radius);
+  background: #FFFFFF;
+  text-decoration: none;
+  color: inherit;
+
+  .icon-wrap {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(10, 102, 255, 0.08);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ion-color-primary);
+    flex-shrink: 0;
+
+    ion-icon { font-size: 22px; }
+  }
+
+  .cta-titles {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+  .cta-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink-900);
+  }
+  .cta-sub {
+    font-size: 13px;
+    color: var(--ink-500);
+  }
+  .chev {
+    color: var(--ink-300);
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  &:active {
+    background: var(--ink-50);
+  }
 }
 
-.kpis .num {
-  font-size: 1.6em;
-  font-weight: bold;
-  line-height: 1;
+// ---- Atalhos (lista vertical sem cards) -------------------------------------
+.quick-list {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--ink-200);
+  border-bottom: 1px solid var(--ink-200);
 }
 
-.kpis .label {
-  font-size: 0.75em;
-  margin-top: 4px;
+.quick-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  text-decoration: none;
+  color: var(--ink-900);
+  font-size: 15px;
+  font-weight: 500;
+  border-bottom: 1px solid var(--ink-200);
+
+  &:last-child { border-bottom: 0; }
+
+  ion-icon:first-child {
+    font-size: 20px;
+    color: var(--ink-500);
+    flex-shrink: 0;
+  }
+
+  span {
+    flex: 1;
+  }
+
+  .chev {
+    color: var(--ink-300);
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  &:active { background: var(--ink-50); }
+  &.is-muted ion-icon:first-child { color: var(--ink-300); }
+  &.is-muted span { color: var(--ink-700); }
 }
 
-.card-warning { background: var(--ion-color-warning, #ffc409); color: #333; }
-.card-primary { background: var(--ion-color-primary, #3880ff); }
-.card-success { background: var(--ion-color-success, #2dd36f); }
+// ---- Lista de últimas propostas ---------------------------------------------
+.proposal-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--ink-200);
+  border-bottom: 1px solid var(--ink-200);
 
-.atalhos ion-button {
-  height: 56px;
+  li {
+    border-bottom: 1px solid var(--ink-200);
+  }
+  li:last-child {
+    border-bottom: 0;
+  }
 }
 
-ion-item small {
-  color: var(--ion-color-medium);
+.proposal-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  text-decoration: none;
+  color: inherit;
+  min-height: 72px;
+
+  &:active { background: var(--ink-50); }
 }
+
+.proposal-main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 8px;
+  row-gap: 2px;
+  min-width: 0;
+}
+
+.proposal-num {
+  grid-row: 1;
+  grid-column: 1;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-500);
+}
+
+.proposal-name {
+  grid-row: 1;
+  grid-column: 2;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink-900);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.proposal-main .t-meta {
+  grid-row: 2;
+  grid-column: 1 / -1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// ---- Biometria opcional ------------------------------------------------------
+.biometric-card {
+  margin: 0 16px;
+  padding: 16px;
+  border: var(--card-border);
+  border-radius: var(--card-radius);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .t-h3 { display: block; margin-bottom: 4px; }
+  .notice { margin-top: 4px; }
+}
+
+.cta-primary {
+  --background: var(--ion-color-primary);
+  --background-activated: var(--ion-color-primary-shade);
+  --color: #FFFFFF;
+  --border-radius: 10px;
+  height: 44px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.form-error {
+  margin: 0 16px;
+  padding: 12px 14px;
+  background: var(--status-danger-bg);
+  color: var(--status-danger-fg);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.bottom-spacer { height: 32px; }

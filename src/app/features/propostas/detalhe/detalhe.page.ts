@@ -10,42 +10,28 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { Browser } from '@capacitor/browser';
 import {
-  IonBackButton,
-  IonButton,
-  IonButtons,
-  IonCard,
-  IonCardContent,
-  IonCardHeader,
-  IonCardSubtitle,
-  IonCardTitle,
-  IonChip,
   IonContent,
-  IonHeader,
   IonIcon,
-  IonItem,
-  IonLabel,
-  IonList,
-  IonNote,
   IonSelect,
   IonSelectOption,
   IonSpinner,
-  IonText,
-  IonTitle,
-  IonToolbar,
   ModalController,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
-  checkmarkCircle,
+  barcodeOutline,
+  cameraOutline,
+  checkmarkCircleOutline,
+  checkmarkOutline,
+  closeCircleOutline,
   cloudDoneOutline,
   copyOutline,
-  documentAttach,
-  documentText,
+  documentTextOutline,
   eyeOutline,
-  pencil,
-  qrCode,
-  shareOutline,
-  trash,
+  pencilOutline,
+  qrCodeOutline,
+  sparklesOutline,
+  trashOutline,
 } from 'ionicons/icons';
 import * as QRCode from 'qrcode';
 import { DocumentosService } from '../../../core/documentos/documentos.service';
@@ -53,34 +39,11 @@ import { PropostasService } from '../../../core/propostas/propostas.service';
 import {
   MetodoPagamento,
   PropostaDetalhe,
-  StatusProposta,
   TipoDocumento,
 } from '../../../core/propostas/propostas.types';
 import { SignatureModalComponent } from '../../../shared/signature/signature-modal.component';
-
-const STATUS_LABEL: Record<StatusProposta, string> = {
-  RASCUNHO: 'Rascunho',
-  SIMULADA: 'Simulada',
-  AGUARDANDO_DOCS: 'Aguardando documentos',
-  AGUARDANDO_ASSINATURA: 'Aguardando assinatura',
-  AGUARDANDO_PAGAMENTO: 'Aguardando pagamento',
-  TRANSMITIDA: 'Transmitida',
-  APROVADA: 'Aprovada',
-  RECUSADA: 'Recusada',
-  CANCELADA: 'Cancelada',
-};
-
-const STATUS_COLOR: Record<StatusProposta, string> = {
-  RASCUNHO: 'medium',
-  SIMULADA: 'tertiary',
-  AGUARDANDO_DOCS: 'warning',
-  AGUARDANDO_ASSINATURA: 'warning',
-  AGUARDANDO_PAGAMENTO: 'warning',
-  TRANSMITIDA: 'primary',
-  APROVADA: 'success',
-  RECUSADA: 'danger',
-  CANCELADA: 'medium',
-};
+import { PageHeaderComponent } from '../../../shared/ui/page-header.component';
+import { StatusPillComponent } from '../../../shared/ui/status-pill.component';
 
 @Component({
   selector: 'app-proposta-detalhe',
@@ -89,28 +52,13 @@ const STATUS_COLOR: Record<StatusProposta, string> = {
     CurrencyPipe,
     DatePipe,
     DecimalPipe,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
     IonContent,
-    IonButtons,
-    IonBackButton,
-    IonButton,
-    IonCard,
-    IonCardHeader,
-    IonCardTitle,
-    IonCardSubtitle,
-    IonCardContent,
-    IonChip,
     IonIcon,
-    IonList,
-    IonItem,
-    IonLabel,
-    IonNote,
     IonSelect,
     IonSelectOption,
     IonSpinner,
-    IonText,
+    PageHeaderComponent,
+    StatusPillComponent,
   ],
   templateUrl: './detalhe.page.html',
   styleUrls: ['./detalhe.page.scss'],
@@ -133,8 +81,6 @@ export class PropostaDetalhePage implements OnInit, OnDestroy {
 
   private pollHandle: ReturnType<typeof setInterval> | null = null;
 
-  readonly STATUS_LABEL = STATUS_LABEL;
-  readonly STATUS_COLOR = STATUS_COLOR;
   readonly TIPOS_DOC: TipoDocumento[] = [
     'RG',
     'CNH',
@@ -167,16 +113,19 @@ export class PropostaDetalhePage implements OnInit, OnDestroy {
 
   constructor() {
     addIcons({
-      documentAttach,
-      documentText,
-      pencil,
-      qrCode,
+      documentTextOutline,
+      pencilOutline,
+      qrCodeOutline,
+      barcodeOutline,
+      cameraOutline,
       copyOutline,
-      checkmarkCircle,
-      trash,
+      checkmarkCircleOutline,
+      checkmarkOutline,
+      closeCircleOutline,
+      trashOutline,
       eyeOutline,
-      shareOutline,
       cloudDoneOutline,
+      sparklesOutline,
     });
   }
 
@@ -236,7 +185,7 @@ export class PropostaDetalhePage implements OnInit, OnDestroy {
               await this.renderQrSeNecessario();
               if (atual.status !== 'AGUARDANDO_PAGAMENTO') {
                 this.pararPolling();
-                this.notice.set('✅ Pagamento confirmado! Proposta transmitida.');
+                this.notice.set('Pagamento confirmado. Proposta transmitida.');
               }
             })
             .catch(() => {});
@@ -367,7 +316,7 @@ export class PropostaDetalhePage implements OnInit, OnDestroy {
   copiar(text: string): void {
     if (navigator?.clipboard) {
       void navigator.clipboard.writeText(text);
-      this.notice.set('Código PIX copiado.');
+      this.notice.set('Código copiado.');
     }
   }
 

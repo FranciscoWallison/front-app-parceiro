@@ -1,55 +1,31 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import {
-  IonBackButton,
-  IonButton,
-  IonButtons,
-  IonCard,
-  IonCardContent,
-  IonCardHeader,
-  IonCardSubtitle,
-  IonCardTitle,
   IonContent,
-  IonHeader,
   IonIcon,
-  IonInput,
-  IonItem,
-  IonLabel,
-  IonList,
   IonSpinner,
-  IonText,
-  IonTitle,
-  IonToolbar,
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { keyOutline, mailOutline } from 'ionicons/icons';
+import {
+  checkmarkCircleOutline,
+  chevronBackOutline,
+  keyOutline,
+  mailOutline,
+} from 'ionicons/icons';
 import { AuthService } from '../../../core/auth/auth.service';
+import { CpfMaskDirective } from '../../../shared/masks/mask.directives';
 
 @Component({
   selector: 'app-esqueci-senha',
   standalone: true,
   imports: [
     FormsModule,
-    IonHeader,
-    IonToolbar,
-    IonTitle,
+    RouterLink,
+    CpfMaskDirective,
     IonContent,
-    IonButtons,
-    IonBackButton,
-    IonButton,
-    IonCard,
-    IonCardHeader,
-    IonCardSubtitle,
-    IonCardTitle,
-    IonCardContent,
-    IonList,
-    IonItem,
-    IonLabel,
-    IonInput,
     IonIcon,
     IonSpinner,
-    IonText,
   ],
   templateUrl: './esqueci-senha.page.html',
   styleUrls: ['./esqueci-senha.page.scss'],
@@ -67,7 +43,7 @@ export class EsqueciSenhaPage {
   error = signal<string | null>(null);
 
   constructor() {
-    addIcons({ mailOutline, keyOutline });
+    addIcons({ mailOutline, keyOutline, chevronBackOutline, checkmarkCircleOutline });
   }
 
   async pedirToken(): Promise<void> {
