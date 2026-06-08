@@ -125,6 +125,8 @@ Algumas tools do backend **não executam ação no servidor**, apenas retornam u
 
 Detalhes de arquitetura, segurança e como adicionar tools novas em [doc/HANDOFFS.md](../doc/HANDOFFS.md).
 
+**Quer testar agora?** Mensagens prontas para colar ou falar no chat (PF, PME, voz, dados mágicos) em [doc/EXEMPLOS-CHAT-IA.md](../doc/EXEMPLOS-CHAT-IA.md).
+
 ## Voz no chat (STT)
 
 O chat tem um **botão de microfone** ao lado do "Enviar" que captura voz em pt-BR via **Azure AI Speech**. O texto reconhecido entra no MESMO `enviar()` que o usuário usa digitando — IA processa identicamente.
