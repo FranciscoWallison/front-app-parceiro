@@ -97,17 +97,36 @@
 </ion-content>
 
 <ion-footer class="chat-footer">
+  @if (speech.partialText(); as partial) {
+    <p class="partial-text">🎤 {{ partial }}</p>
+  }
+  @if (voiceError(); as ve) {
+    <p class="voice-error">
+      <ion-icon name="alert-circle-outline" aria-hidden="true"></ion-icon>
+      {{ ve }}
+    </p>
+  }
   <form class="chat-input" (ngSubmit)="enviar()">
     <textarea
       [(ngModel)]="rascunho"
       name="rascunho"
-      placeholder="Digite sua mensagem…"
+      placeholder="Digite ou toque no mic"
       (keydown.enter)="onEnter($event)"
-      [disabled]="loading()"
+      [disabled]="loading() || speech.isListening()"
       rows="1"
       #ta
       (input)="ajustarAltura(ta)"
     ></textarea>
+    <button
+      type="button"
+      class="mic-btn"
+      [class.is-recording]="speech.isListening()"
+      [disabled]="loading()"
+      (click)="toggleMic()"
+      [attr.aria-label]="speech.isListening() ? 'Parar gravação' : 'Falar'"
+    >
+      <ion-icon [name]="speech.isListening() ? 'stop-outline' : 'mic-outline'" aria-hidden="true"></ion-icon>
+    </button>
     <button type="submit" class="send-btn" [disabled]="!podeEnviar()" aria-label="Enviar">
       @if (loading()) {
         <ion-spinner name="crescent"></ion-spinner>

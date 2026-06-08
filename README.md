@@ -125,6 +125,30 @@ Algumas tools do backend **não executam ação no servidor**, apenas retornam u
 
 Detalhes de arquitetura, segurança e como adicionar tools novas em [doc/HANDOFFS.md](../doc/HANDOFFS.md).
 
+## Voz no chat (STT)
+
+O chat tem um **botão de microfone** ao lado do "Enviar" que captura voz em pt-BR via **Azure AI Speech**. O texto reconhecido entra no MESMO `enviar()` que o usuário usa digitando — IA processa identicamente.
+
+### Como funciona
+
+- O backend NestJS expõe `POST /ai/speech/token` que devolve um **token Azure efêmero (10min)** — a chave Azure NUNCA toca o APK.
+- Frontend usa `SpeechConfig.fromAuthorizationToken(token, region)` para abrir WebSocket direto com Azure (latência baixa, transcrição parcial em tempo real).
+- `recognizing` → texto cinza-itálico no footer. `recognized` (pausa final detectada) → texto vai pro input e dispara `enviar()` automaticamente.
+
+### Patch obrigatório
+
+O SDK Azure Speech (`microsoft-cognitiveservices-speech-sdk@1.49`) puxa um `https-proxy-agent` antigo Node-only que o esbuild do Angular 20 não tree-shake. O script [`scripts/patch-azure-sdk.js`](scripts/patch-azure-sdk.js) sobrescreve esse módulo com stubs vazios (o SDK já marca como `browser: false`, apenas não chamado em runtime). Roda automaticamente via `npm postinstall`.
+
+### Configurar backend
+
+Veja [doc/VOICE.md](../doc/VOICE.md) — criar recurso Azure Speech, colar `AZURE_SPEECH_KEY` no `.env` do backend, `docker compose up -d --force-recreate backend`.
+
+Sem essa env, o endpoint do backend retorna 503 e o frontend mostra toast "Voz indisponível: configure AZURE_SPEECH_KEY no servidor".
+
+### Permissão Android
+
+[AndroidManifest.xml](android/app/src/main/AndroidManifest.xml) declara `RECORD_AUDIO` + `MODIFY_AUDIO_SETTINGS`. A primeira vez que tocar no mic, o Android pede permissão — toca "Permitir".
+
 ## Push notifications
 
 Para push REAL chegar no APK:

@@ -2,6 +2,8 @@ import { CommonModule } from '@angular/common';
 import {
   Component,
   ElementRef,
+  OnDestroy,
+  OnInit,
   ViewChild,
   effect,
   inject,
@@ -24,13 +26,17 @@ import {
   closeCircleOutline,
   cogOutline,
   logOutOutline,
+  micOutline,
   pencilOutline,
   refreshOutline,
   sparklesOutline,
+  stopOutline,
 } from 'ionicons/icons';
+import { Subscription } from 'rxjs';
 import { AiChatService } from '../../core/ai/ai-chat.service';
 import { ChatHandoffResolver } from '../../core/ai/chat-handoff.resolver';
 import { ChatMessage, Handoff } from '../../core/ai/ai-chat.types';
+import { SpeechService } from '../../core/ai/speech.service';
 import { PageHeaderComponent } from '../../shared/ui/page-header.component';
 
 @Component({
@@ -48,15 +54,19 @@ import { PageHeaderComponent } from '../../shared/ui/page-header.component';
   templateUrl: './chat.page.html',
   styleUrls: ['./chat.page.scss'],
 })
-export class ChatPage {
+export class ChatPage implements OnInit, OnDestroy {
   private readonly ai = inject(AiChatService);
   private readonly resolver = inject(ChatHandoffResolver);
+  readonly speech = inject(SpeechService);
 
   @ViewChild('scrollArea', { static: false }) scrollArea?: ElementRef<HTMLElement>;
 
   rascunho = '';
   mensagens = signal<ChatMessage[]>([]);
   loading = signal(false);
+  voiceError = signal<string | null>(null);
+
+  private speechSubs: Subscription[] = [];
 
   podeEnviar = () => !this.loading() && this.rascunho.trim().length > 0;
 
@@ -73,6 +83,8 @@ export class ChatPage {
       pencilOutline,
       logOutOutline,
       checkmarkOutline,
+      micOutline,
+      stopOutline,
     });
     // Scroll para o final só quando a lista de mensagens muda, em vez de a
     // cada ngAfterViewChecked (que entrava em loop com mudanças do ion-content).
@@ -82,6 +94,41 @@ export class ChatPage {
       this.loading();
       setTimeout(() => this.scrollToBottom(), 50);
     });
+  }
+
+  ngOnInit(): void {
+    // STT: quando o Azure emite texto final, manda direto pro pipeline.
+    this.speechSubs.push(
+      this.speech.transcription$.subscribe((texto) => {
+        const limpo = texto.trim();
+        if (!limpo) return;
+        this.rascunho = limpo;
+        this.speech.stopListening();
+        void this.enviar();
+      }),
+    );
+    this.speechSubs.push(
+      this.speech.error$.subscribe((msg) => {
+        this.voiceError.set(msg);
+        // Auto-dismiss em 4s
+        setTimeout(() => this.voiceError.set(null), 4000);
+      }),
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.speech.stopListening();
+    this.speechSubs.forEach((s) => s.unsubscribe());
+    this.speechSubs = [];
+  }
+
+  async toggleMic(): Promise<void> {
+    this.voiceError.set(null);
+    if (this.speech.isListening()) {
+      this.speech.stopListening();
+      return;
+    }
+    await this.speech.startListening('pt-BR');
   }
 
   onEnter(ev: Event): void {
