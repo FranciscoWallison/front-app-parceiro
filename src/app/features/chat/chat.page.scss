@@ -134,6 +134,43 @@
   ion-icon { font-size: 14px; color: var(--ion-color-primary); }
 }
 
+// Botão CTA para handoffs que pedem confirmação (câmera, assinatura, logout)
+.handoff-cta {
+  appearance: none;
+  margin-left: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 0;
+  background: var(--ion-color-primary);
+  color: #FFFFFF;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  ion-icon { font-size: 14px; color: #FFFFFF; }
+
+  &:active { background: var(--ion-color-primary-shade); }
+}
+
+.handoff-feedback {
+  margin-left: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  ion-icon { font-size: 14px; }
+
+  &.ok { color: var(--status-success-fg); ion-icon { color: var(--status-success-fg); } }
+  &.err { color: var(--status-danger-fg); }
+  &.muted { color: var(--ink-500); }
+}
+
 .msg-error {
   align-self: stretch;
   display: flex;

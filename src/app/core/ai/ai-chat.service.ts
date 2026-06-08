@@ -6,7 +6,9 @@ import {
   ChatMessage,
   ChatRequest,
   ChatResponse,
+  Handoff,
   ToolHop,
+  pedeConfirmacao,
 } from './ai-chat.types';
 
 const SESSION_KEY = 'corretor.ai.sessionId';
@@ -48,25 +50,23 @@ export class AiChatService {
   }
 
   /**
-   * Converte um ToolHop do backend em uma mensagem renderizável de "ferramenta"
-   * exibida como chip cinza entre mensagens user/model.
+   * Converte um ToolHop do backend em uma mensagem renderizável de "ferramenta".
+   *
+   * O backend pode incluir `handoff` em DUAS formas no result:
+   * - Antiga (compat): `{ handoff: 'OPEN_PROPOSTA_DETALHE', propostaId }` (string)
+   * - Nova: `{ handoff: { kind, ...payload } }` (objeto discriminated union)
+   *
+   * Sempre normalizamos para o formato `Handoff`.
    */
   hopParaMensagem(hop: ToolHop, criadaEm: string): ChatMessage {
-    const resultado = hop.result as { erro?: string; handoff?: string; propostaId?: string; numero?: number; status?: string };
-    const erro = typeof resultado === 'object' && resultado?.erro ? resultado.erro : undefined;
+    const resultado = hop.result as Record<string, unknown> | undefined;
+    const erro =
+      resultado && typeof resultado === 'object' && typeof resultado['erro'] === 'string'
+        ? (resultado['erro'] as string)
+        : undefined;
 
-    let resumo = hop.name;
-    if (resultado && typeof resultado === 'object') {
-      const r = resultado as Record<string, unknown>;
-      if (r['numero']) resumo += ` · #${r['numero']}`;
-      if (r['status']) resumo += ` ${r['status']}`;
-      else if (Array.isArray(r)) resumo += ` (${(r as unknown[]).length} itens)`;
-    }
-
-    let handoff: ChatMessage['handoff'];
-    if (resultado?.handoff === 'OPEN_PROPOSTA_DETALHE' || resultado?.handoff === 'OPEN_SIGNATURE_MODAL') {
-      handoff = { kind: resultado.handoff, propostaId: resultado.propostaId ?? '' };
-    }
+    const resumo = this.montarResumo(hop.name, resultado);
+    const handoff = erro ? undefined : this.extrairHandoff(resultado);
 
     return {
       id: cryptoRandomId(),
@@ -75,13 +75,49 @@ export class AiChatService {
       toolStatus: erro ? 'erro' : 'ok',
       toolResumo: erro ? `${hop.name} · ${erro}` : resumo,
       handoff,
+      handoffStatus: handoff ? 'pendente' : undefined,
       criadaEm,
     };
+  }
+
+  private montarResumo(nome: string, r: Record<string, unknown> | undefined): string {
+    let resumo = nome;
+    if (!r || typeof r !== 'object') return resumo;
+    if (typeof r['numero'] === 'number') resumo += ` · #${r['numero']}`;
+    if (typeof r['status'] === 'string') resumo += ` ${r['status']}`;
+    else if (Array.isArray(r)) resumo += ` (${(r as unknown[]).length} itens)`;
+    return resumo;
+  }
+
+  private extrairHandoff(r: Record<string, unknown> | undefined): Handoff | undefined {
+    if (!r || typeof r !== 'object') return undefined;
+    const raw = r['handoff'];
+
+    // Novo formato: objeto com kind discriminante
+    if (raw && typeof raw === 'object' && typeof (raw as { kind?: unknown }).kind === 'string') {
+      return raw as Handoff;
+    }
+
+    // Compat com formato antigo (string + propostaId no root)
+    if (typeof raw === 'string') {
+      const propostaId = typeof r['propostaId'] === 'string' ? (r['propostaId'] as string) : '';
+      if (raw === 'OPEN_PROPOSTA_DETALHE' && propostaId) {
+        return { kind: 'OPEN_PROPOSTA_DETALHE', propostaId };
+      }
+      if (raw === 'OPEN_SIGNATURE_MODAL' && propostaId) {
+        return { kind: 'OPEN_SIGNATURE_MODAL', propostaId };
+      }
+    }
+    return undefined;
+  }
+
+  /** True se o handoff precisa de Alert antes de executar. */
+  precisaConfirmacao(h: Handoff): boolean {
+    return pedeConfirmacao(h);
   }
 }
 
 function cryptoRandomId(): string {
-  // crypto.randomUUID() está disponível em browsers modernos
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
     return (crypto as Crypto).randomUUID();
   }

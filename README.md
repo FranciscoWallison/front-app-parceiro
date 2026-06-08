@@ -26,6 +26,7 @@ cotação → câmera para docs → glass signature → PIX → transmissão →
 - Push notifications real (FCM) com deeplink para detalhe da proposta
 - Tela admin para aprovar/recusar propostas TRANSMITIDAS
 - Telas secundárias: perfil, materiais, contato, FAQ, esqueci-senha
+- **Chat com IA Gemini** que entende linguagem natural e **navega/aciona telas** via protocolo de handoff (ver [doc/HANDOFFS.md](../doc/HANDOFFS.md))
 
 ## Quickstart
 
@@ -35,15 +36,30 @@ cotação → câmera para docs → glass signature → PIX → transmissão →
 - Para APK Android: Android Studio (com SDK 35+ instalado) + Java JDK 21
 - **Backend rodando** — repositório: https://github.com/FranciscoWallison/back-app-parceiro
 
-### 2. Configurar IP do backend
+### 2. Configurar IP do backend (3 configurações Angular)
 
-Edite [src/environments/environment.ts](src/environments/environment.ts) e troque o IP em `apiBaseUrlNative` para o **IP da sua máquina dev na LAN** (descubra com `ipconfig` no Windows ou `ifconfig` no Linux/Mac):
+O Angular usa **fileReplacements** para trocar `environment.ts` pelo arquivo apropriado conforme o alvo do build:
+
+| Configuração | Arquivo | Onde aponta | Quando usar |
+|---|---|---|---|
+| `development` (default `ng serve`) | [environment.ts](src/environments/environment.ts) | IP da LAN (192.168.x) | Dev no browser + APK release no device físico |
+| `emulator` | [environment.emulator.ts](src/environments/environment.emulator.ts) | `10.0.2.2:13000` (gateway do AVD) | Emulador Android Studio |
+| `production` | [environment.prod.ts](src/environments/environment.prod.ts) | HTTPS público (futuro Play Store) | Release final |
+
+Para device físico, edite o IP em [environment.ts](src/environments/environment.ts) e [environment.prod.ts](src/environments/environment.prod.ts) com seu IP da LAN (descubra com `ipconfig` no Windows ou `ifconfig` no Linux/Mac):
 
 ```typescript
 apiBaseUrlNative: 'http://192.168.1.42:13000/api', // ← seu IP aqui
 ```
 
-> Para produção, edite `environment.prod.ts` com o domínio público.
+Para o emulador, **não precisa mexer** — `environment.emulator.ts` já aponta para `10.0.2.2`.
+
+### 2b. Scripts úteis
+
+```bash
+npm run build:emulator     # ng build --configuration=emulator + cap sync
+npm run apk:emulator       # build:emulator + gradlew assembleDebug
+```
 
 ### 3. Instalar deps e rodar no browser
 
@@ -86,6 +102,28 @@ adb shell monkey -p io.appcorretor.mobile -c android.intent.category.LAUNCHER 1
 |---|---|
 | `12345678909` | `senha123` |
 | `11144477735` | `senha123` |
+
+## Chat com IA (Gemini Function Calling)
+
+O app tem uma rota `/chat` (CTA "Criar com IA" na home) onde o corretor digita em linguagem natural. O backend NestJS proxia para o Gemini API com **function calling** — o LLM decide quais funções chamar e o frontend reage.
+
+### Protocolo de handoff
+
+Algumas tools do backend **não executam ação no servidor**, apenas retornam um descritor `{ handoff: { kind, ...payload } }`. O frontend recebe esse descritor e o `ChatHandoffResolver` ([core/ai/chat-handoff.resolver.ts](src/app/core/ai/chat-handoff.resolver.ts)) executa a ação correspondente:
+
+| Handoff `kind` | Ação | Confirma? |
+|---|---|:---:|
+| `OPEN_PROPOSTA_DETALHE` | Navega `/propostas/:id` | — |
+| `OPEN_WIZARD_PF` / `OPEN_WIZARD_PME` | Navega o wizard correspondente | — |
+| `OPEN_LISTA_PROPOSTAS` | Navega `/propostas` com queryParams `status` / `tipo` | — |
+| `OPEN_ADMIN` | Navega `/admin/propostas` | — |
+| `OPEN_PERFIL` | Navega `/perfil` + rola até `#biometria` ou `#push` | — |
+| `SHOW_TOAST` | `ToastController` 3s com cor por tone | — |
+| `OPEN_CAMERA` | Confirma → `Camera.getPhoto` → upload → navega para o detalhe | **✓** |
+| `OPEN_SIGNATURE_MODAL` | Confirma → modal signature_pad → `PropostasService.assinar` | **✓** |
+| `DO_LOGOUT` | Confirma → `AuthService.logout()` → `/login` | **✓** |
+
+Detalhes de arquitetura, segurança e como adicionar tools novas em [doc/HANDOFFS.md](../doc/HANDOFFS.md).
 
 ## Push notifications
 

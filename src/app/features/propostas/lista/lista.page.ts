@@ -1,7 +1,7 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   IonButton,
   IonContent,
@@ -18,6 +18,7 @@ import { add, documentTextOutline } from 'ionicons/icons';
 import { PropostasService } from '../../../core/propostas/propostas.service';
 import {
   PropostaResumo,
+  StatusProposta,
   TipoProposta,
 } from '../../../core/propostas/propostas.types';
 import { PageHeaderComponent } from '../../../shared/ui/page-header.component';
@@ -49,10 +50,12 @@ import { StatusPillComponent } from '../../../shared/ui/status-pill.component';
 export class PropostasListaPage implements OnInit {
   private readonly service = inject(PropostasService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   loading = signal(true);
   error = signal<string | null>(null);
   filtroTipo = signal<TipoProposta | 'TODOS'>('TODOS');
+  filtroStatus = signal<StatusProposta | null>(null);
 
   propostas = this.service.lista;
 
@@ -61,7 +64,15 @@ export class PropostasListaPage implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    await this.recarregar();
+    // queryParams ?status=X&tipo=Y vindos do ChatHandoffResolver populam o filtro
+    this.route.queryParamMap.subscribe((qp) => {
+      const tipo = qp.get('tipo');
+      const status = qp.get('status');
+      if (tipo === 'PF' || tipo === 'PME') this.filtroTipo.set(tipo);
+      else if (tipo === 'TODOS' || tipo === null) this.filtroTipo.set('TODOS');
+      this.filtroStatus.set(status as StatusProposta | null);
+      void this.recarregar();
+    });
   }
 
   async recarregar(): Promise<void> {
@@ -69,7 +80,11 @@ export class PropostasListaPage implements OnInit {
     this.error.set(null);
     try {
       const tipo = this.filtroTipo();
-      await this.service.listar(tipo !== 'TODOS' ? { tipo } : undefined);
+      const status = this.filtroStatus();
+      const filtro: { tipo?: TipoProposta; status?: StatusProposta } = {};
+      if (tipo !== 'TODOS') filtro.tipo = tipo;
+      if (status) filtro.status = status;
+      await this.service.listar(Object.keys(filtro).length ? filtro : undefined);
     } catch (err: unknown) {
       this.error.set(err instanceof Error ? err.message : 'Falha ao carregar.');
     } finally {

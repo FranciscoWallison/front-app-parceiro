@@ -1,5 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import {
   IonContent,
   IonIcon,
@@ -35,6 +36,7 @@ import { StatusPillComponent } from '../../shared/ui/status-pill.component';
 export class PerfilPage implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly push = inject(PushService);
+  private readonly route = inject(ActivatedRoute);
 
   user = this.auth.user;
   editing = signal(false);
@@ -65,6 +67,14 @@ export class PerfilPage implements OnInit {
     if (u) {
       this.form = { nome: u.nome, email: u.email, telefone: '' };
     }
+    // Rola até a seção quando vindo do chat ai (ex: /perfil#biometria)
+    this.route.fragment.subscribe((frag) => {
+      if (!frag) return;
+      setTimeout(() => {
+        const el = document.getElementById(frag);
+        el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 250);
+    });
   }
 
   iniciarEdit(): void {

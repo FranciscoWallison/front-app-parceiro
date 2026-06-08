@@ -1,14 +1,13 @@
 import { CommonModule } from '@angular/common';
 import {
-  AfterViewChecked,
   Component,
   ElementRef,
   ViewChild,
+  effect,
   inject,
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import {
   IonContent,
   IonFooter,
@@ -20,13 +19,18 @@ import {
   alertCircleOutline,
   arrowForwardOutline,
   arrowUpOutline,
+  cameraOutline,
+  checkmarkOutline,
   closeCircleOutline,
   cogOutline,
+  logOutOutline,
+  pencilOutline,
   refreshOutline,
   sparklesOutline,
 } from 'ionicons/icons';
 import { AiChatService } from '../../core/ai/ai-chat.service';
-import { ChatMessage } from '../../core/ai/ai-chat.types';
+import { ChatHandoffResolver } from '../../core/ai/chat-handoff.resolver';
+import { ChatMessage, Handoff } from '../../core/ai/ai-chat.types';
 import { PageHeaderComponent } from '../../shared/ui/page-header.component';
 
 @Component({
@@ -35,7 +39,6 @@ import { PageHeaderComponent } from '../../shared/ui/page-header.component';
   imports: [
     CommonModule,
     FormsModule,
-    RouterLink,
     IonContent,
     IonFooter,
     IonIcon,
@@ -45,8 +48,9 @@ import { PageHeaderComponent } from '../../shared/ui/page-header.component';
   templateUrl: './chat.page.html',
   styleUrls: ['./chat.page.scss'],
 })
-export class ChatPage implements AfterViewChecked {
+export class ChatPage {
   private readonly ai = inject(AiChatService);
+  private readonly resolver = inject(ChatHandoffResolver);
 
   @ViewChild('scrollArea', { static: false }) scrollArea?: ElementRef<HTMLElement>;
 
@@ -65,16 +69,24 @@ export class ChatPage implements AfterViewChecked {
       closeCircleOutline,
       alertCircleOutline,
       refreshOutline,
+      cameraOutline,
+      pencilOutline,
+      logOutOutline,
+      checkmarkOutline,
     });
-  }
-
-  ngAfterViewChecked(): void {
-    this.scrollToBottom();
+    // Scroll para o final só quando a lista de mensagens muda, em vez de a
+    // cada ngAfterViewChecked (que entrava em loop com mudanças do ion-content).
+    effect(() => {
+      // Lê o signal para registrar dependência
+      this.mensagens();
+      this.loading();
+      setTimeout(() => this.scrollToBottom(), 50);
+    });
   }
 
   onEnter(ev: Event): void {
     const e = ev as KeyboardEvent;
-    if (e.shiftKey) return; // permite quebra de linha
+    if (e.shiftKey) return;
     e.preventDefault();
     void this.enviar();
   }
@@ -112,6 +124,14 @@ export class ChatPage implements AfterViewChecked {
         criadaEm: ts,
       };
       this.mensagens.update((arr) => [...arr, ...hops, modelMsg]);
+
+      // Auto-executa handoffs que não precisam de confirmação.
+      // Para destrutivos, o usuário clica no botão "Executar agora" no chip.
+      for (const m of hops) {
+        if (m.handoff && !this.ai.precisaConfirmacao(m.handoff)) {
+          void this.executarHandoff(m);
+        }
+      }
     } catch (err: unknown) {
       const msg = this.mensagemErroAmigavel(err);
       this.mensagens.update((arr) => [
@@ -126,6 +146,55 @@ export class ChatPage implements AfterViewChecked {
     } finally {
       this.loading.set(false);
     }
+  }
+
+  /**
+   * Disparado pelo botão "Executar agora" no chip de tool (para handoffs com
+   * confirmação) ou automaticamente pelo `enviar()` (para auto-executáveis).
+   */
+  async executarHandoff(m: ChatMessage): Promise<void> {
+    if (!m.handoff) return;
+    this.atualizarHandoffStatus(m.id, 'pendente');
+    try {
+      const ok = await this.resolver.executar(m.handoff);
+      this.atualizarHandoffStatus(m.id, ok ? 'executado' : 'cancelado');
+    } catch {
+      this.atualizarHandoffStatus(m.id, 'erro');
+    }
+  }
+
+  private atualizarHandoffStatus(
+    id: string,
+    status: NonNullable<ChatMessage['handoffStatus']>,
+  ): void {
+    this.mensagens.update((arr) =>
+      arr.map((m) => (m.id === id ? { ...m, handoffStatus: status } : m)),
+    );
+  }
+
+  /** Botão e label do CTA do chip dependem do tipo de handoff. */
+  labelHandoff(h: Handoff | undefined): string {
+    if (!h) return 'Executar';
+    switch (h.kind) {
+      case 'OPEN_CAMERA': return 'Abrir câmera';
+      case 'OPEN_SIGNATURE_MODAL': return 'Abrir assinatura';
+      case 'DO_LOGOUT': return 'Sair da conta';
+      default: return 'Executar';
+    }
+  }
+
+  iconeHandoff(h: Handoff | undefined): string {
+    if (!h) return 'arrow-forward-outline';
+    switch (h.kind) {
+      case 'OPEN_CAMERA': return 'camera-outline';
+      case 'OPEN_SIGNATURE_MODAL': return 'pencil-outline';
+      case 'DO_LOGOUT': return 'log-out-outline';
+      default: return 'arrow-forward-outline';
+    }
+  }
+
+  precisaConfirmar(h: Handoff | undefined): boolean {
+    return !!h && this.ai.precisaConfirmacao(h);
   }
 
   resetar(): void {

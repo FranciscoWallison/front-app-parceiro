@@ -56,11 +56,25 @@
                 aria-hidden="true"
               ></ion-icon>
               <span>{{ m.toolResumo }}</span>
-              @if (m.handoff?.kind === 'OPEN_PROPOSTA_DETALHE') {
-                <a class="handoff-link" [routerLink]="['/propostas', m.handoff?.propostaId]">
-                  Abrir proposta
-                  <ion-icon name="arrow-forward-outline" aria-hidden="true"></ion-icon>
-                </a>
+
+              @if (m.handoff) {
+                @if (m.handoffStatus === 'executado') {
+                  <span class="handoff-feedback ok">
+                    <ion-icon name="checkmark-outline" aria-hidden="true"></ion-icon>
+                    Feito
+                  </span>
+                } @else if (m.handoffStatus === 'cancelado') {
+                  <span class="handoff-feedback muted">Cancelado</span>
+                } @else if (m.handoffStatus === 'erro') {
+                  <span class="handoff-feedback err">Falhou</span>
+                } @else if (precisaConfirmar(m.handoff)) {
+                  <button type="button" class="handoff-cta" (click)="executarHandoff(m)">
+                    <ion-icon [name]="iconeHandoff(m.handoff)" aria-hidden="true"></ion-icon>
+                    {{ labelHandoff(m.handoff) }}
+                  </button>
+                } @else {
+                  <span class="handoff-feedback muted">Executando…</span>
+                }
               }
             </li>
           }
