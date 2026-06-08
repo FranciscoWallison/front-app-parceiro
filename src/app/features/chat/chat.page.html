@@ -101,7 +101,7 @@
     <textarea
       [(ngModel)]="rascunho"
       name="rascunho"
-      placeholder="Digite sua mensagem… (Enter envia, Shift+Enter quebra linha)"
+      placeholder="Digite sua mensagem…"
       (keydown.enter)="onEnter($event)"
       [disabled]="loading()"
       rows="1"
